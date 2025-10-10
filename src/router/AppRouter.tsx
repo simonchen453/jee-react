@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { Spin } from 'antd';
-import Layout from '../pages/Layout';
+import Layout from '../pages/Layout.js';
 
 // 懒加载页面组件
+const Login = lazy(() => import('../pages/Login'));
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const UserList = lazy(() => import('../pages/User/UserList'));
 const NotFound = lazy(() => import('../pages/NotFound'));
@@ -24,6 +25,14 @@ function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
+                <Route 
+                    path="/login" 
+                    element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            <Login />
+                        </Suspense>
+                    } 
+                />
                 <Route path="/" element={<Layout />}>
                     <Route 
                         index 

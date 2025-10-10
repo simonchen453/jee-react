@@ -1,8 +1,8 @@
-import { useUserStore } from '../../stores/useUserStore';
+import { useUserStore } from '../../stores/useUserStore.js';
 import { useEffect } from 'react';
 import { Button, List, Card, Spin, Alert, Space, Typography } from 'antd';
 import { UserOutlined, PlusOutlined } from '@ant-design/icons';
-import { User } from '../../types';
+import { User } from '../../types/index.js';
 
 const { Title } = Typography;
 

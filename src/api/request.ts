@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { message } from 'antd';
-import { ApiResponse } from '../types/index.js';
+import type {ApiResponse} from '../types/index';
 
 const request = axios.create({
     baseURL: import.meta.env.VITE_API_BASE || '/api',

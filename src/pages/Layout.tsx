@@ -2,7 +2,7 @@ import { Layout as AntLayout, Menu, theme, Button, Avatar, Dropdown, Space, Typo
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { UserOutlined, DashboardOutlined, MenuFoldOutlined, MenuUnfoldOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
-import { MenuItem } from '../types/index.js';
+import type {MenuItem} from '../types/index';
 
 const { Header, Sider, Content } = AntLayout;
 const { Text } = Typography;

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User } from '../types/index.js';
+import type {User} from '../types/index';
 
 interface UserState {
     users: User[];

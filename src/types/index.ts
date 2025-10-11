@@ -1,3 +1,5 @@
+import type {ReactNode} from 'react';
+
 // 用户相关类型
 export interface User {
   id: number;
@@ -33,7 +35,7 @@ export interface PaginatedResponse<T> {
 // 菜单项类型
 export interface MenuItem {
   key: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   label: string;
   path?: string;
   children?: MenuItem[];
@@ -43,7 +45,7 @@ export interface MenuItem {
 export interface StatisticData {
   title: string;
   value: number;
-  icon: React.ReactNode;
+  icon: ReactNode;
   color: string;
   suffix?: string;
 }

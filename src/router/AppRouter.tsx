@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { Spin } from 'antd';
-import Layout from '../pages/Layout.js';
+import Layout from '../pages/Layout';
 
 // 懒加载页面组件
 const Login = lazy(() => import('../pages/Login'));

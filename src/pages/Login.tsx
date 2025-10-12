@@ -3,6 +3,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, UserOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../stores/useUserStore';
 import './Login.css';
 
 const loginSchema = z.object({
@@ -16,6 +18,8 @@ type LoginForm = z.infer<typeof loginSchema>;
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuthStore();
 
   const {
     register,
@@ -37,7 +41,22 @@ const Login: React.FC = () => {
       // 模拟登录请求
       await new Promise(resolve => setTimeout(resolve, 1500));
       console.log('登录数据:', data);
-      // 这里添加实际的登录逻辑
+      
+      // 模拟用户数据
+      const userData = {
+        id: 1,
+        name: data.username,
+        email: `${data.username}@example.com`,
+        avatar: '',
+        role: 'admin',
+        status: 'active' as const
+      };
+      
+      // 设置登录状态
+      login(userData);
+      
+      // 跳转到首页
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('登录失败:', error);
     } finally {

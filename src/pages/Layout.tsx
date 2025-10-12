@@ -2,6 +2,7 @@ import { Layout as AntLayout, Menu, theme, Button, Avatar, Dropdown, Space, Typo
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { UserOutlined, DashboardOutlined, MenuFoldOutlined, MenuUnfoldOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
+import { useAuthStore } from '../stores/useUserStore';
 import type {MenuItem} from '../types/index';
 
 const { Header, Sider, Content } = AntLayout;
@@ -10,6 +11,7 @@ const { Text } = Typography;
 function MainLayout() {
     const [collapsed, setCollapsed] = useState(false);
     const navigate = useNavigate();
+    const { logout, currentUser } = useAuthStore();
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -55,8 +57,8 @@ function MainLayout() {
     const handleUserMenuClick = ({ key }: { key: string }) => {
         switch (key) {
             case 'logout':
-                localStorage.removeItem('token');
-                navigate('/login');
+                logout();
+                navigate('/login', { replace: true });
                 break;
             default:
                 console.log('点击了:', key);
@@ -114,7 +116,7 @@ function MainLayout() {
                         >
                             <Space style={{ cursor: 'pointer' }}>
                                 <Avatar icon={<UserOutlined />} />
-                                <Text>管理员</Text>
+                                <Text>{currentUser?.name || '管理员'}</Text>
                             </Space>
                         </Dropdown>
                     </Space>

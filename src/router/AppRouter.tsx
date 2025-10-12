@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { Spin } from 'antd';
 import Layout from '../pages/Layout';
+import ProtectedRoute from '../components/ProtectedRoute';
+import PublicRoute from '../components/PublicRoute';
 
 // 懒加载页面组件
 const Login = lazy(() => import('../pages/Login'));
@@ -28,12 +30,18 @@ function AppRouter() {
                 <Route 
                     path="/login" 
                     element={
-                        <Suspense fallback={<LoadingSpinner />}>
-                            <Login />
-                        </Suspense>
+                        <PublicRoute>
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <Login />
+                            </Suspense>
+                        </PublicRoute>
                     } 
                 />
-                <Route path="/" element={<Layout />}>
+                <Route path="/" element={
+                    <ProtectedRoute>
+                        <Layout />
+                    </ProtectedRoute>
+                }>
                     <Route 
                         index 
                         element={

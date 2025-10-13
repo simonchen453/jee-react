@@ -4,12 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../stores/useUserStore';
+import { message } from 'antd';
+import { useAuthStore } from '../../stores/useUserStore.ts';
+import type { LoginRequest } from '../../types/index';
 import './Login.css';
 
 const loginSchema = z.object({
-  username: z.string().min(1, '请输入用户名'),
-  password: z.string().min(6, '密码至少6位'),
+  userId: z.string().min(1, '请输入用户ID'),
+  password: z.string().min(1, '请输入密码'),
   remember: z.boolean().optional()
 });
 
@@ -29,7 +31,7 @@ const Login: React.FC = () => {
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: '',
+      userId: '',
       password: '',
       remember: false
     }
@@ -38,27 +40,23 @@ const Login: React.FC = () => {
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     try {
-      // 模拟登录请求
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('登录数据:', data);
-      
-      // 模拟用户数据
-      const userData = {
-        id: 1,
-        name: data.username,
-        email: `${data.username}@example.com`,
-        avatar: '',
-        role: 'admin',
-        status: 'active' as const
+      // 构建登录请求数据
+      const loginData: LoginRequest = {
+        userId: data.userId,
+        password: data.password,
+        platform: 'SYSTEM'
       };
       
-      // 设置登录状态
-      login(userData);
+      // 调用登录API
+      await login(loginData);
+      
+      message.success('登录成功！');
       
       // 跳转到首页
       navigate('/', { replace: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error('登录失败:', error);
+      message.error(error?.response?.data?.message || '登录失败，请检查用户名和密码');
     } finally {
       setIsLoading(false);
     }
@@ -91,15 +89,15 @@ const Login: React.FC = () => {
             <div className="input-wrapper">
               <UserOutlined className="input-icon" />
               <input
-                {...register('username')}
+                {...register('userId')}
                 type="text"
-                placeholder="请输入用户名"
-                className={`form-input ${errors.username ? 'error' : ''}`}
+                placeholder="请输入用户ID"
+                className={`form-input ${errors.userId ? 'error' : ''}`}
                 autoComplete="username"
               />
             </div>
-            {errors.username && (
-              <span className="error-message">{errors.username.message}</span>
+            {errors.userId && (
+              <span className="error-message">{errors.userId.message}</span>
             )}
           </div>
 

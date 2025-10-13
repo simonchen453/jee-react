@@ -6,7 +6,7 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import PublicRoute from '../components/PublicRoute';
 
 // 懒加载页面组件
-const Login = lazy(() => import('../pages/Login'));
+const Login = lazy(() => import('../pages/Login/Login.tsx'));
 const Dashboard = lazy(() => import('../pages/Dashboard'));
 const UserList = lazy(() => import('../pages/User/UserList'));
 const NotFound = lazy(() => import('../pages/NotFound'));

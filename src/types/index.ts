@@ -12,6 +12,20 @@ export interface User {
   updatedAt?: string;
 }
 
+// 登录请求类型
+export interface LoginRequest {
+  userId: string;
+  password: string;
+  platform: string;
+}
+
+// 登录响应类型
+export interface LoginResponse {
+  token: string;
+  user: User;
+  expiresIn?: number;
+}
+
 // API响应类型
 export interface ApiResponse<T = any> {
   code: number;

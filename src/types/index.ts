@@ -17,6 +17,8 @@ export interface LoginRequest {
   userId: string;
   password: string;
   platform: string;
+  captcha: string;
+  captchaKey: string;
 }
 
 // 登录响应类型
@@ -28,10 +30,12 @@ export interface LoginResponse {
 
 // API响应类型
 export interface ApiResponse<T = any> {
-  code: number;
+  restCode: string;
   message: string;
   data: T;
   success: boolean;
+  errors: any[];
+  errorsMap: Record<string, any>;
 }
 
 // 分页类型

@@ -440,3 +440,30 @@
     margin-bottom: 10px;
   }
 }
+
+/* 验证码相关样式 */
+.captcha-input-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.captcha-input {
+  flex: 1;
+}
+
+.captcha-component {
+  flex-shrink: 0;
+}
+
+/* 验证码响应式设计 */
+@media (max-width: 480px) {
+  .captcha-input-wrapper {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .captcha-component {
+    align-self: center;
+  }
+}

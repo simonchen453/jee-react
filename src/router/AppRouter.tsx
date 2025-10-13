@@ -58,15 +58,15 @@ function AppRouter() {
                             </Suspense>
                         } 
                     />
-                    <Route 
-                        path="*" 
-                        element={
-                            <Suspense fallback={<LoadingSpinner />}>
-                                <NotFound />
-                            </Suspense>
-                        } 
-                    />
                 </Route>
+                <Route 
+                    path="*" 
+                    element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            <NotFound />
+                        </Suspense>
+                    } 
+                />
             </Routes>
         </BrowserRouter>
     );

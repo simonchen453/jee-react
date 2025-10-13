@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, UserOutlined } from '@ant-design/icons';
+import { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, UserOutlined, SafetyOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import { useAuthStore } from '../../stores/useUserStore.ts';
+import Captcha, {type CaptchaRef } from '../../components/Captcha';
 import type { LoginRequest } from '../../types/index';
 import './Login.css';
 
 const loginSchema = z.object({
   userId: z.string().min(1, '请输入用户ID'),
   password: z.string().min(1, '请输入密码'),
+  captcha: z.string().min(1, '请输入验证码'),
   remember: z.boolean().optional()
 });
 
@@ -20,6 +22,8 @@ type LoginForm = z.infer<typeof loginSchema>;
 const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [captchaKey, setCaptchaKey] = useState<string>('');
+  const captchaRef = useRef<CaptchaRef>(null);
   const navigate = useNavigate();
   const { login } = useAuthStore();
 
@@ -27,12 +31,14 @@ const Login: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    watch
+    watch,
+    setValue
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       userId: '',
       password: '',
+      captcha: '',
       remember: false
     }
   });
@@ -44,19 +50,49 @@ const Login: React.FC = () => {
       const loginData: LoginRequest = {
         userId: data.userId,
         password: data.password,
-        platform: 'SYSTEM'
+        platform: 'SYSTEM',
+        captcha: data.captcha,
+        captchaKey: captchaKey
       };
+      
+      // 打印请求数据用于调试
+      console.log('登录请求数据:', JSON.stringify(loginData, null, 2));
       
       // 调用登录API
       await login(loginData);
       
+      console.log('登录成功，准备跳转到首页');
       message.success('登录成功！');
       
       // 跳转到首页
       navigate('/', { replace: true });
+      console.log('已执行跳转命令');
     } catch (error: any) {
       console.error('登录失败:', error);
-      message.error(error?.response?.data?.message || '登录失败，请检查用户名和密码');
+      
+      // 获取错误消息 - 优先使用服务器返回的message
+      let errorMessage = '登录失败，请检查用户名、密码和验证码';
+      
+      if (error?.response?.data?.message) {
+        // 服务器返回的具体错误消息
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        // 网络或其他错误消息
+        errorMessage = error.message;
+      }
+      
+      console.log('显示错误消息:', errorMessage);
+      
+      // 显示错误消息
+      message.error(errorMessage);
+      
+      // 自动刷新验证码
+      if (captchaRef.current) {
+        captchaRef.current.refresh();
+      }
+      
+      // 清空验证码输入框
+      setValue('captcha', '');
     } finally {
       setIsLoading(false);
     }
@@ -121,6 +157,29 @@ const Login: React.FC = () => {
             </div>
             {errors.password && (
               <span className="error-message">{errors.password.message}</span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <div className="captcha-input-wrapper">
+              <div className="input-wrapper captcha-input">
+                <SafetyOutlined className="input-icon" />
+                <input
+                  {...register('captcha')}
+                  type="text"
+                  placeholder="请输入验证码"
+                  className={`form-input ${errors.captcha ? 'error' : ''}`}
+                  autoComplete="off"
+                />
+              </div>
+              <Captcha 
+                ref={captchaRef}
+                onCaptchaChange={setCaptchaKey}
+                className="captcha-component"
+              />
+            </div>
+            {errors.captcha && (
+              <span className="error-message">{errors.captcha.message}</span>
             )}
           </div>
 

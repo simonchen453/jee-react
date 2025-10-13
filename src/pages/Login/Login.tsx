@@ -31,7 +31,6 @@ const Login: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
     setValue
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -42,6 +41,8 @@ const Login: React.FC = () => {
       remember: false
     }
   });
+
+  const [messageApi, contextHolder] = message.useMessage();
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
@@ -55,18 +56,13 @@ const Login: React.FC = () => {
         captchaKey: captchaKey
       };
       
-      // 打印请求数据用于调试
-      console.log('登录请求数据:', JSON.stringify(loginData, null, 2));
-      
       // 调用登录API
       await login(loginData);
       
-      console.log('登录成功，准备跳转到首页');
-      message.success('登录成功！');
+      messageApi.success('登录成功！');
       
       // 跳转到首页
       navigate('/', { replace: true });
-      console.log('已执行跳转命令');
     } catch (error: any) {
       console.error('登录失败:', error);
       
@@ -81,10 +77,8 @@ const Login: React.FC = () => {
         errorMessage = error.message;
       }
       
-      console.log('显示错误消息:', errorMessage);
-      
       // 显示错误消息
-      message.error(errorMessage);
+      messageApi.error(errorMessage);
       
       // 自动刷新验证码
       if (captchaRef.current) {
@@ -100,6 +94,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="login-container">
+      {contextHolder}
       <div className="login-background">
         <div className="tech-grid"></div>
         <div className="floating-particles">

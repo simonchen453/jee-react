@@ -8,10 +8,9 @@ const request = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
+        // 使用session认证，浏览器会自动发送cookie
+        // 设置withCredentials确保cookie被发送
+        config.withCredentials = true;
         return config;
     },
     (error) => Promise.reject(error)
@@ -33,7 +32,8 @@ request.interceptors.response.use(
     (error: AxiosError) => {
         // 仅将错误抛给调用方处理，不在拦截器内做全局弹窗
         if (error.response && error.response.status === 401) {
-            localStorage.removeItem('token');
+            // session过期时，清除本地认证状态
+            // 这里可以触发全局登出逻辑
         }
         return Promise.reject(error);
     }

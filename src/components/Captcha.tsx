@@ -11,7 +11,7 @@ export interface CaptchaRef {
 }
 
 const Captcha = forwardRef<CaptchaRef, CaptchaProps>(({ onCaptchaChange, className = '' }, ref) => {
-  const [captchaKey, setCaptchaKey] = useState<string>('');
+  const [, setCaptchaKey] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string>('');
 
   // 生成随机key

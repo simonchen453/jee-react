@@ -3,13 +3,13 @@ import type { LoginRequest, LoginResponse, ApiResponse } from '../types';
 
 // 登录接口
 export const loginApi = async (data: LoginRequest): Promise<LoginResponse> => {
-  const response = await request.post<ApiResponse<LoginResponse>>('/rest/auth/login', data);
+  const response = await request.post<LoginResponse>('/rest/auth/login', data);
   return response.data;
 };
 
 // 登出接口
 export const logoutApi = async (): Promise<void> => {
-  await request.post('/auth/logout');
+  await request.post('/rest/auth/logout');
 };
 
 // 获取用户信息接口

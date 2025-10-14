@@ -23,9 +23,8 @@ export interface LoginRequest {
 
 // 登录响应类型
 export interface LoginResponse {
-  token: string;
   user: User;
-  expiresIn?: number;
+  message?: string;
 }
 
 // API响应类型

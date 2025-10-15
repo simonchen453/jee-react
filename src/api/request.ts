@@ -1,8 +1,13 @@
 import axios, { AxiosError, type AxiosResponse } from 'axios';
+import { useAuthStore } from '../stores/useUserStore';
 
 const request = axios.create({
     baseURL: import.meta.env.VITE_API_BASE || '/api',
     timeout: 10000,
+    withCredentials: true,
+    headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+    },
 });
 
 // 请求拦截器
@@ -32,8 +37,18 @@ request.interceptors.response.use(
     (error: AxiosError) => {
         // 仅将错误抛给调用方处理，不在拦截器内做全局弹窗
         if (error.response && error.response.status === 401) {
-            // session过期时，清除本地认证状态
-            // 这里可以触发全局登出逻辑
+            // session过期时，清除本地认证状态并跳转登录
+            try {
+                const { clearAuth } = useAuthStore.getState();
+                clearAuth();
+            } catch (_) {}
+            if (typeof window !== 'undefined') {
+                const current = window.location.pathname + window.location.search;
+                const redirect = encodeURIComponent(current);
+                if (!window.location.pathname.startsWith('/login')) {
+                    window.location.href = `/login?redirect=${redirect}`;
+                }
+            }
         }
         return Promise.reject(error);
     }

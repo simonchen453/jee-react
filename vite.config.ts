@@ -46,6 +46,15 @@ export default defineConfig({
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+            const setCookie = proxyRes.headers['set-cookie'];
+            if (Array.isArray(setCookie)) {
+              proxyRes.headers['set-cookie'] = setCookie.map((cookie) =>
+                cookie
+                  .replace(/;\s*Path=\/hyx/gi, '; Path=/')
+              );
+            } else if (typeof setCookie === 'string') {
+              proxyRes.headers['set-cookie'] = setCookie.replace(/;\s*Path=\/hyx/gi, '; Path=/');
+            }
           });
         },
       },

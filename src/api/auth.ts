@@ -3,8 +3,8 @@ import type { LoginRequest, LoginResponse, ApiResponse } from '../types';
 
 // 登录接口
 export const loginApi = async (data: LoginRequest): Promise<LoginResponse> => {
-  const response = await request.post<LoginResponse>('/rest/auth/login', data);
-  return response.data;
+  const respData = await request.post<LoginResponse>('/rest/auth/login', data);
+  return respData as unknown as LoginResponse;
 };
 
 // 登出接口
@@ -14,6 +14,6 @@ export const logoutApi = async (): Promise<void> => {
 
 // 获取用户信息接口
 export const getUserInfoApi = async (): Promise<any> => {
-  const response = await request.get<ApiResponse<any>>('/rest/auth/userinfo');
-  return response.data;
+  const respData = await request.get<ApiResponse<any>>('/rest/auth/userinfo');
+  return respData as unknown as any;
 };

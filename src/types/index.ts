@@ -58,6 +58,23 @@ export interface MenuItem {
   children?: MenuItem[];
 }
 
+// 后端菜单项类型
+export interface BackendMenuItem {
+  index: string;
+  title: string;
+  icon: string;
+  url: string;
+  subs: BackendMenuItem[];
+}
+
+// 菜单响应类型
+export interface MenuResponse {
+  restCode: string;
+  message: string;
+  data: BackendMenuItem[];
+  success: boolean;
+}
+
 // 统计数据类型
 export interface StatisticData {
   title: string;

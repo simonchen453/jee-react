@@ -1,6 +1,18 @@
-# JEE React 管理系统
+# Admin Pro 管理系统
 
-基于 React + TypeScript + Vite + Ant Design 构建的现代化管理系统。
+<div align="center">
+  <img src="/public/logo-large.svg" alt="Admin Pro Logo" width="128" height="128" />
+  <h3>Admin Pro 企业级管理系统</h3>
+  <p>基于 Spring Boot + React 的现代化管理平台</p>
+  <p>
+    <img src="https://img.shields.io/badge/React-19.1.1-blue?logo=react" alt="React Version" />
+    <img src="https://img.shields.io/badge/TypeScript-5.9.3-blue?logo=typescript" alt="TypeScript Version" />
+    <img src="https://img.shields.io/badge/Ant%20Design-5.27.4-blue?logo=ant-design" alt="Ant Design Version" />
+    <img src="https://img.shields.io/badge/Vite-7.1.7-646CFF?logo=vite" alt="Vite Version" />
+  </p>
+</div>
+
+基于 React + TypeScript + Vite + Ant Design 构建的现代化企业级管理系统，提供完整的用户管理、权限控制、菜单管理等核心功能。
 
 ## 技术栈
 

@@ -106,13 +106,20 @@ const Login: React.FC = () => {
       
       <div className="login-card">
         <div className="login-header">
-          <div className="logo-container">
-            <div className="logo-icon">
-              <div className="logo-inner"></div>
+          <div className="brand-section">
+            <div className="logo-wrapper">
+              <div className="logo-background">
+                <img src="/logo.svg" alt="Admin Pro" className="logo-image" />
+              </div>
             </div>
-            <h1 className="logo-text">管理系统</h1>
+            <div className="brand-text">
+              <h1 className="brand-title">Admin Pro</h1>
+              <div className="brand-subtitle">
+                <span className="subtitle-text">企业级管理系统</span>
+                <div className="subtitle-line"></div>
+              </div>
+            </div>
           </div>
-          <p className="login-subtitle">欢迎登录后台管理系统</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="login-form">

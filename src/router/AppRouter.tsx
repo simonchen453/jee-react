@@ -7,7 +7,7 @@ import PublicRoute from '../components/PublicRoute';
 
 // 懒加载页面组件
 const Login = lazy(() => import('../pages/Login/Login.tsx'));
-const Dashboard = lazy(() => import('../pages/Dashboard'));
+const Home = lazy(() => import('../pages/Home'));
 const UserList = lazy(() => import('../pages/User/UserList'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 
@@ -46,12 +46,28 @@ function AppRouter() {
                         index 
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
-                                <Dashboard />
+                                <Home />
+                            </Suspense>
+                        } 
+                    />
+                    <Route 
+                        path="home" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <Home />
                             </Suspense>
                         } 
                     />
                     <Route 
                         path="users" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <UserList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route 
+                        path="admin/user" 
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
                                 <UserList />

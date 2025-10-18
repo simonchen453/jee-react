@@ -41,7 +41,7 @@ export default defineConfig({
           proxy.on('error', (err, _req, _res) => {
             console.log('proxy error', err);
           });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
+          proxy.on('proxyReq', (_proxyReq, req, _res) => {
             console.log('Sending Request to the Target:', req.method, req.url);
           });
           proxy.on('proxyRes', (proxyRes, req, _res) => {
@@ -50,10 +50,10 @@ export default defineConfig({
             if (Array.isArray(setCookie)) {
               proxyRes.headers['set-cookie'] = setCookie.map((cookie) =>
                 cookie
-                  .replace(/;\s*Path=\/hyx/gi, '; Path=/')
+                  .replace(/;\s*Path=\/ecqee/gi, '; Path=/')
               );
             } else if (typeof setCookie === 'string') {
-              proxyRes.headers['set-cookie'] = setCookie.replace(/;\s*Path=\/hyx/gi, '; Path=/');
+              proxyRes.headers['set-cookie'] = [(setCookie as string).replace(/;\s*Path=\/ecqee/gi, '; Path=/')];
             }
           });
         },

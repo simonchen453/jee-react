@@ -26,7 +26,41 @@ request.interceptors.response.use(
     (response: AxiosResponse) => {
         const { data } = response;
         
-        // 如果API返回了错误码
+        // 检查业务错误码，如果是401认证失败，直接跳转登录
+        if (data.restCode === '401' || (data.restCode === 401) || data.message?.includes('认证失败')) {
+            // 清除本地认证状态并跳转登录
+            try {
+                const { clearAuth } = useAuthStore.getState();
+                clearAuth();
+            } catch (_) {}
+            
+            if (typeof window !== 'undefined') {
+                // 显示认证失败提示
+                console.warn('认证失败，正在跳转到登录页面...', data.message);
+                
+                const current = window.location.pathname + window.location.search;
+                const redirect = encodeURIComponent(current);
+                if (!window.location.pathname.startsWith('/login')) {
+                    window.location.href = `/login?redirect=${redirect}`;
+                }
+            }
+            return Promise.reject({ response: { data }, isAuthError: true });
+        }
+        
+        // 检查业务错误码，如果是403权限不足，跳转到权限不足页面
+        if (data.restCode === '403' || (data.restCode === 403) || data.message?.includes('权限不足') || data.message?.includes('无权限')) {
+            if (typeof window !== 'undefined') {
+                // 显示权限不足提示
+                console.warn('权限不足，正在跳转到权限不足页面...', data.message);
+                
+                if (!window.location.pathname.startsWith('/no-permission')) {
+                    window.location.href = '/no-permission';
+                }
+            }
+            return Promise.reject({ response: { data }, isPermissionError: true });
+        }
+        
+        // 如果API返回了其他错误码
         if (data.restCode !== '200' && data.restCode !== '0' && !data.success) {
             // 抛出包含原始响应体的数据，供调用方自行处理提示
             return Promise.reject({ response: { data } });
@@ -35,7 +69,7 @@ request.interceptors.response.use(
         return data;
     },
     (error: AxiosError) => {
-        // 仅将错误抛给调用方处理，不在拦截器内做全局弹窗
+        // 处理HTTP状态码401
         if (error.response && error.response.status === 401) {
             // session过期时，清除本地认证状态并跳转登录
             try {
@@ -43,6 +77,9 @@ request.interceptors.response.use(
                 clearAuth();
             } catch (_) {}
             if (typeof window !== 'undefined') {
+                // 显示认证失败提示
+                console.warn('Session过期，正在跳转到登录页面...');
+                
                 const current = window.location.pathname + window.location.search;
                 const redirect = encodeURIComponent(current);
                 if (!window.location.pathname.startsWith('/login')) {

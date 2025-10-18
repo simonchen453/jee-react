@@ -9,6 +9,7 @@ import PublicRoute from '../components/PublicRoute';
 const Login = lazy(() => import('../pages/Login/Login.tsx'));
 const Home = lazy(() => import('../pages/Home'));
 const UserList = lazy(() => import('../pages/User/UserList'));
+const NoPermission = lazy(() => import('../pages/NoPermission'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 
 // 加载中组件
@@ -75,6 +76,14 @@ function AppRouter() {
                         } 
                     />
                 </Route>
+                <Route 
+                    path="/no-permission" 
+                    element={
+                        <Suspense fallback={<LoadingSpinner />}>
+                            <NoPermission />
+                        </Suspense>
+                    } 
+                />
                 <Route 
                     path="*" 
                     element={

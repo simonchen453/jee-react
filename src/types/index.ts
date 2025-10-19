@@ -213,9 +213,64 @@ export interface PostEntity {
   name: string;
 }
 
-// 用户状态枚举
-export enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  LOCK = 'LOCK',
-  INACTIVE = 'INACTIVE'
+// 用户状态常量
+export const UserStatus = {
+  ACTIVE: 'ACTIVE',
+  LOCK: 'LOCK',
+  INACTIVE: 'INACTIVE'
+} as const;
+
+// 角色状态常量
+export const RoleStatus = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive'
+} as const;
+
+// 系统配置常量
+export const SystemConfig = {
+  YES: 'true',
+  NO: 'false'
+} as const;
+
+// 角色搜索表单
+export interface RoleSearchForm {
+  name?: string;
+  display?: string;
+  status?: string;
+  system?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+// 角色实体
+export interface RoleEntity {
+  id: string;
+  name: string;
+  display: string;
+  code: string;
+  status: string;
+  system: string;
+  menuNames?: string[];
+}
+
+// 角色列表响应
+export interface RoleListResponse {
+  records: RoleEntity[];
+  totalCount: number;
+  pageNo: number;
+  pageSize: number;
+}
+
+// 菜单树节点
+export interface MenuTreeNode {
+  id: string;
+  label: string;
+  children?: MenuTreeNode[];
+}
+
+// 角色菜单树响应
+export interface RoleMenuTreeResponse {
+  menus: MenuTreeNode[];
+  checkedKeys: string[];
 }

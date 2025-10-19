@@ -159,6 +159,31 @@ function MainLayout() {
                             },
                         ],
                     },
+                    {
+                        key: 'role-management',
+                        icon: <TagOutlined />,
+                        label: '角色管理',
+                        children: [
+                            {
+                                key: '/roles',
+                                icon: <TagOutlined />,
+                                label: '角色列表',
+                                path: '/roles',
+                            },
+                            {
+                                key: '/admin/role',
+                                icon: <TagOutlined />,
+                                label: '角色管理',
+                                path: '/admin/role',
+                            },
+                            {
+                                key: '/role/list',
+                                icon: <TagOutlined />,
+                                label: '角色列表',
+                                path: '/role/list',
+                            },
+                        ],
+                    },
                 ]);
             } finally {
                 setLoading(false);

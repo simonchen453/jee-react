@@ -11,6 +11,7 @@ const Home = lazy(() => import('../pages/Home'));
 const UserList = lazy(() => import('../pages/User/UserList'));
 const UserDetail = lazy(() => import('../pages/User/UserDetail'));
 const UserEdit = lazy(() => import('../pages/User/UserEdit'));
+const RoleList = lazy(() => import('../pages/Role/RoleList'));
 const ChangePassword = lazy(() => import('../pages/ChangePassword/ChangePassword'));
 const NoPermission = lazy(() => import('../pages/NoPermission'));
 const NotFound = lazy(() => import('../pages/NotFound'));
@@ -99,6 +100,30 @@ function AppRouter() {
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
                                 <UserEdit />
+                            </Suspense>
+                        } 
+                    />
+                    <Route 
+                        path="roles" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <RoleList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route 
+                        path="admin/role" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <RoleList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route 
+                        path="role/list" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <RoleList />
                             </Suspense>
                         } 
                     />

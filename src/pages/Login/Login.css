@@ -154,7 +154,7 @@
   position: relative;
 }
 
-.logo-background {
+.login-logo-background {
   width: 80px;
   height: 80px;
   background: linear-gradient(135deg, #1890ff, #40a9ff, #69c0ff);
@@ -170,7 +170,7 @@
   animation: logoGlow 3s ease-in-out infinite;
 }
 
-.logo-background::before {
+.login-logo-background::before {
   content: '';
   position: absolute;
   top: -50%;
@@ -214,11 +214,11 @@
   z-index: 1;
 }
 
-.brand-text {
+.login-brand-text {
   text-align: center;
 }
 
-.brand-title {
+.login-brand-title {
   font-size: 36px;
   font-weight: 800;
   background: linear-gradient(135deg, #ffffff, #e6f7ff, #bae7ff);
@@ -231,7 +231,7 @@
   position: relative;
 }
 
-.brand-title::after {
+.login-brand-title::after {
   content: '';
   position: absolute;
   bottom: -8px;

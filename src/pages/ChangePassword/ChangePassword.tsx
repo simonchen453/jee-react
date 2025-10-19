@@ -105,13 +105,13 @@ const ChangePassword: React.FC = () => {
         <Card className="change-password-card">
           <div className="change-password-header">
             <div className="logo-wrapper">
-              <div className="logo-background">
-                <img src="/logo.svg" alt="Admin Pro" className="logo-image" />
+              <div className="changepwd-logo-background">
+                <img src="/logo.svg" alt="Admin Pro" className="changepwd-logo-image" />
               </div>
             </div>
-            <div className="brand-text">
-              <h1 className="brand-title">修改密码</h1>
-              <p className="brand-subtitle">为了您的账户安全，请定期修改密码</p>
+            <div className="changepwd-brand-text">
+              <h1 className="changepwd-brand-title">修改密码</h1>
+              <p className="changepwd-brand-subtitle">为了您的账户安全，请定期修改密码</p>
             </div>
           </div>
           

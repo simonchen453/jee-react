@@ -245,8 +245,8 @@ function MainLayout() {
                 width={280}
             >
                 <div className="logo">
-                    <div className="logo-background">
-                        <img src="/logo.svg" alt="Admin Pro" className="logo-image" />
+                    <div className="layout-logo-background">
+                        <img src="/logo.svg" alt="Admin Pro" className="layout-logo-image" />
                     </div>
                     {!collapsed && (
                         <div className="logo-text">

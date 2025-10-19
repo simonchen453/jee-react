@@ -15,7 +15,7 @@
   min-width: 0;
 }
 
-.logo-background {
+.layout-logo-background {
   width: 40px;
   height: 40px;
   background: linear-gradient(135deg, #1890ff, #40a9ff);
@@ -28,7 +28,7 @@
   margin-right: 12px;
 }
 
-.logo-image {
+.layout-logo-image {
   width: 24px;
   height: 24px;
 }

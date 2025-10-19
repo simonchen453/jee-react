@@ -108,12 +108,12 @@ const Login: React.FC = () => {
         <div className="login-header">
           <div className="brand-section">
             <div className="logo-wrapper">
-              <div className="logo-background">
+              <div className="login-logo-background">
                 <img src="/logo.svg" alt="Admin Pro" className="logo-image" />
               </div>
             </div>
-            <div className="brand-text">
-              <h1 className="brand-title">Admin Pro</h1>
+            <div className="login-brand-text">
+              <h1 className="login-brand-title">Admin Pro</h1>
               <div className="brand-subtitle">
                 <span className="subtitle-text">企业级管理系统</span>
                 <div className="subtitle-line"></div>

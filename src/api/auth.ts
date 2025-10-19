@@ -17,3 +17,24 @@ export const getUserInfoApi = async (): Promise<any> => {
   const respData = await request.get<ApiResponse<any>>('/rest/auth/userinfo');
   return respData as unknown as any;
 };
+
+// 修改密码接口
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+export const changePasswordApi = async (data: ChangePasswordRequest): Promise<ChangePasswordResponse> => {
+  try {
+    const response = await request.post<ChangePasswordResponse>('/common/changepwd', data);
+    return response as unknown as ChangePasswordResponse;
+  } catch (error) {
+    console.error('修改密码失败:', error);
+    throw error;
+  }
+};

@@ -245,7 +245,9 @@ function MainLayout() {
                 width={280}
             >
                 <div className="logo">
-                    <img src="/logo.svg" alt="Admin Pro" style={{ width: 24, height: 24 }} />
+                    <div className="logo-background">
+                        <img src="/logo.svg" alt="Admin Pro" className="logo-image" />
+                    </div>
                     {!collapsed && (
                         <div className="logo-text">
                             <div className="logo-title">Admin Pro</div>

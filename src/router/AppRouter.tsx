@@ -9,6 +9,7 @@ import PublicRoute from '../components/PublicRoute';
 const Login = lazy(() => import('../pages/Login/Login.tsx'));
 const Home = lazy(() => import('../pages/Home'));
 const UserList = lazy(() => import('../pages/User/UserList'));
+const ChangePassword = lazy(() => import('../pages/ChangePassword/ChangePassword'));
 const NoPermission = lazy(() => import('../pages/NoPermission'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 
@@ -72,6 +73,14 @@ function AppRouter() {
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
                                 <UserList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route 
+                        path="changepwd" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <ChangePassword />
                             </Suspense>
                         } 
                     />

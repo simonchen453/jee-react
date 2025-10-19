@@ -15,9 +15,22 @@
   min-width: 0;
 }
 
-.logo img {
+.logo-background {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
   flex-shrink: 0;
   margin-right: 12px;
+}
+
+.logo-image {
+  width: 24px;
+  height: 24px;
 }
 
 .logo-text {

@@ -141,10 +141,23 @@ function MainLayout() {
                         path: '/',
                     },
                     {
-                        key: '/users',
-                        icon: <UserOutlined />,
+                        key: 'user-management',
+                        icon: <TeamOutlined />,
                         label: '用户管理',
-                        path: '/users',
+                        children: [
+                            {
+                                key: '/user/list',
+                                icon: <UserOutlined />,
+                                label: '用户列表',
+                                path: '/user/list',
+                            },
+                            {
+                                key: '/admin/user',
+                                icon: <UserOutlined />,
+                                label: '用户管理',
+                                path: '/admin/user',
+                            },
+                        ],
                     },
                 ]);
             } finally {

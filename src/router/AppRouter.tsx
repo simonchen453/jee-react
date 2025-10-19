@@ -9,6 +9,8 @@ import PublicRoute from '../components/PublicRoute';
 const Login = lazy(() => import('../pages/Login/Login.tsx'));
 const Home = lazy(() => import('../pages/Home'));
 const UserList = lazy(() => import('../pages/User/UserList'));
+const UserDetail = lazy(() => import('../pages/User/UserDetail'));
+const UserEdit = lazy(() => import('../pages/User/UserEdit'));
 const ChangePassword = lazy(() => import('../pages/ChangePassword/ChangePassword'));
 const NoPermission = lazy(() => import('../pages/NoPermission'));
 const NotFound = lazy(() => import('../pages/NotFound'));
@@ -73,6 +75,30 @@ function AppRouter() {
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
                                 <UserList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route 
+                        path="user/list" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <UserList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route 
+                        path="user/detail/:userDomain/:userId" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <UserDetail />
+                            </Suspense>
+                        } 
+                    />
+                    <Route 
+                        path="user/edit/:userDomain/:userId" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <UserEdit />
                             </Suspense>
                         } 
                     />

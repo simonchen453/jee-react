@@ -197,6 +197,7 @@ export interface DeptEntity {
   id: string;
   no: string;
   name: string;
+  parentId: string;
 }
 
 // 角色类型

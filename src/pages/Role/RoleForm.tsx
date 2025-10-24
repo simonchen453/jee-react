@@ -77,8 +77,14 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
     }
   };
 
+  // 菜单选择变化类型定义
+  interface MenuCheckInfo {
+    checked?: string[];
+    halfChecked?: string[];
+  }
+
   // 处理菜单选择变化
-  const handleMenuCheck = (checked: any) => {
+  const handleMenuCheck = (checked: string[] | MenuCheckInfo) => {
     if (Array.isArray(checked)) {
       setCheckedKeys(checked);
     } else {

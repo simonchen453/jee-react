@@ -28,13 +28,13 @@ export interface LoginResponse {
 }
 
 // API响应类型
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   restCode: string;
   message: string;
   data: T;
   success: boolean;
-  errors: any[];
-  errorsMap: Record<string, any>;
+  errors: string[];
+  errorsMap: Record<string, string>;
 }
 
 // 分页类型
@@ -99,7 +99,16 @@ export interface Order {
 export interface AppError {
   code: string;
   message: string;
-  details?: any;
+  details?: Record<string, unknown>;
+}
+
+// API 错误响应类型
+export interface ApiErrorResponse {
+  restCode: string;
+  message: string;
+  success: boolean;
+  errors: string[];
+  errorsMap: Record<string, string>;
 }
 
 // 用户管理相关类型

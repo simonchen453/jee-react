@@ -32,7 +32,9 @@ request.interceptors.response.use(
             try {
                 const { clearAuth } = useAuthStore.getState();
                 clearAuth();
-            } catch (_) {}
+            } catch {
+                // 忽略错误，继续执行
+            }
             
             if (typeof window !== 'undefined') {
                 // 显示认证失败提示
@@ -75,7 +77,9 @@ request.interceptors.response.use(
             try {
                 const { clearAuth } = useAuthStore.getState();
                 clearAuth();
-            } catch (_) {}
+            } catch {
+                // 忽略错误，继续执行
+            }
             if (typeof window !== 'undefined') {
                 // 显示认证失败提示
                 console.warn('Session过期，正在跳转到登录页面...');

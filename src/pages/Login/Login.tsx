@@ -63,18 +63,20 @@ const Login: React.FC = () => {
       
       // 跳转到首页
       navigate('/', { replace: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('登录失败:', error);
       
       // 获取错误消息 - 优先使用服务器返回的message
       let errorMessage = '登录失败，请检查用户名、密码和验证码';
       
-      if (error?.response?.data?.message) {
-        // 服务器返回的具体错误消息
-        errorMessage = error.response.data.message;
-      } else if (error?.message) {
-        // 网络或其他错误消息
-        errorMessage = error.message;
+      if (error && typeof error === 'object' && 'response' in error) {
+        const errorResponse = error as { response?: { data?: { message?: string } } };
+        if (errorResponse.response?.data?.message) {
+          errorMessage = errorResponse.response.data.message;
+        }
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        const errorWithMessage = error as { message: string };
+        errorMessage = errorWithMessage.message;
       }
       
       // 显示错误消息

@@ -71,16 +71,36 @@ const ChangePassword: React.FC = () => {
       messageApi.success('密码修改成功！');
       reset();
       navigate('/');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('修改密码失败:', error);
-      const errorMessage = error?.response?.data?.message || '修改密码失败，请重试';
+      
+      // 获取错误消息 - 优先使用服务器返回的message
+      let errorMessage = '修改密码失败，请重试';
+      
+      if (error && typeof error === 'object' && 'response' in error) {
+        const errorResponse = error as { response?: { data?: { message?: string } } };
+        if (errorResponse.response?.data?.message) {
+          errorMessage = errorResponse.response.data.message;
+        }
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        const errorWithMessage = error as { message: string };
+        errorMessage = errorWithMessage.message;
+      }
+      
       messageApi.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const passwordStrength = (password: string) => {
+  // 密码强度类型定义
+  interface PasswordStrength {
+    score: number;
+    text: string;
+    color: string;
+  }
+
+  const passwordStrength = (password: string): PasswordStrength => {
     if (!password) return { score: 0, text: '', color: '' };
     
     let score = 0;

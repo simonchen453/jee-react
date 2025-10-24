@@ -119,8 +119,11 @@ function MainLayout() {
                 setLoading(true);
                 const backendMenus = await getMenuList();
                 const convertedMenus = convertMenuItems(backendMenus);
-                console.log('原始菜单数据:', backendMenus);
-                console.log('转换后菜单数据:', convertedMenus);
+                // 开发环境下打印菜单数据
+                if (import.meta.env.DEV) {
+                    console.log('原始菜单数据:', backendMenus);
+                    console.log('转换后菜单数据:', convertedMenus);
+                }
                 setMenuItems(convertedMenus);
                 
                 // 设置默认展开"工作空间"菜单

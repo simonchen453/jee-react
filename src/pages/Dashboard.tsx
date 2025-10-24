@@ -1,16 +1,33 @@
+import React from 'react';
 import { Card, Row, Col, Statistic, Table } from 'antd';
 import { UserOutlined, ShoppingCartOutlined, DollarOutlined, EyeOutlined } from '@ant-design/icons';
 
-const Dashboard = () => {
+interface StatisticItem {
+    title: string;
+    value: number;
+    icon: React.ReactNode;
+    color: string;
+    suffix?: string;
+}
+
+interface OrderItem {
+    key: string;
+    orderId: string;
+    customer: string;
+    amount: number;
+    status: string;
+}
+
+const Dashboard: React.FC = () => {
     // 模拟数据
-    const statistics = [
+    const statistics: StatisticItem[] = [
         { title: '总用户数', value: 1128, icon: <UserOutlined />, color: '#1890ff' },
         { title: '订单数量', value: 93, icon: <ShoppingCartOutlined />, color: '#52c41a' },
         { title: '总收入', value: 112893, icon: <DollarOutlined />, color: '#faad14', suffix: '元' },
         { title: '访问量', value: 1128, icon: <EyeOutlined />, color: '#f5222d' },
     ];
 
-    const recentOrders = [
+    const recentOrders: OrderItem[] = [
         { key: '1', orderId: 'ORD001', customer: '张三', amount: 299, status: '已完成' },
         { key: '2', orderId: 'ORD002', customer: '李四', amount: 599, status: '处理中' },
         { key: '3', orderId: 'ORD003', customer: '王五', amount: 199, status: '待支付' },

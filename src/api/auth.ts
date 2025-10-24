@@ -12,10 +12,20 @@ export const logoutApi = async (): Promise<void> => {
   await request.post('/rest/auth/logout');
 };
 
+// 用户信息类型
+export interface UserInfo {
+  id: number;
+  name: string;
+  email: string;
+  avatar?: string;
+  role?: string;
+  status?: 'active' | 'inactive';
+}
+
 // 获取用户信息接口
-export const getUserInfoApi = async (): Promise<any> => {
-  const respData = await request.get<ApiResponse<any>>('/rest/auth/userinfo');
-  return respData as unknown as any;
+export const getUserInfoApi = async (): Promise<UserInfo> => {
+  const respData = await request.get<ApiResponse<UserInfo>>('/rest/auth/userinfo');
+  return respData.data;
 };
 
 // 修改密码接口

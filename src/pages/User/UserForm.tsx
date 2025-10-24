@@ -73,8 +73,26 @@ const UserForm: React.FC<UserFormProps> = ({
     }
   }, [isEdit, user, form]);
 
+  // 用户表单数据类型
+  interface UserFormData {
+    userDomain: string;
+    loginName: string;
+    realName: string;
+    mobileNo: string;
+    email: string;
+    avatarUrl?: string;
+    status: string;
+    sex: string;
+    description?: string;
+    deptId: string;
+    password: string;
+    confirmPassword?: string;
+    roleIds: string[];
+    postIds: string[];
+  }
+
   // 提交表单
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: UserFormData) => {
     setLoading(true);
     try {
       if (isEdit) {
@@ -118,26 +136,58 @@ const UserForm: React.FC<UserFormProps> = ({
         message.success('用户创建成功');
       }
       onSuccess();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('保存用户失败:', error);
-      if (error.response?.data?.errorsMap) {
-        // 显示字段级错误
-        const errors = error.response.data.errorsMap;
-        Object.keys(errors).forEach(field => {
+      
+      // 获取错误消息和字段错误
+      let errorMessage = '保存用户失败';
+      let fieldErrors: Record<string, string> = {};
+      
+      if (error && typeof error === 'object' && 'response' in error) {
+        const errorResponse = error as { 
+          response?: { 
+            data?: { 
+              message?: string;
+              errorsMap?: Record<string, string>;
+            } 
+          } 
+        };
+        
+        if (errorResponse.response?.data?.message) {
+          errorMessage = errorResponse.response.data.message;
+        }
+        
+        if (errorResponse.response?.data?.errorsMap) {
+          fieldErrors = errorResponse.response.data.errorsMap;
+        }
+      }
+      
+      // 显示字段级错误
+      if (Object.keys(fieldErrors).length > 0) {
+        Object.keys(fieldErrors).forEach(field => {
           form.setFields([{
             name: field,
-            errors: [errors[field]]
+            errors: [fieldErrors[field]]
           }]);
         });
       }
-      message.error(error.response?.data?.message || '保存用户失败');
+      
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  // 上传信息类型定义
+  interface UploadInfo {
+    file: {
+      status: 'uploading' | 'done' | 'error' | 'removed';
+      response?: string;
+    };
+  }
+
   // 头像上传
-  const handleAvatarUpload = (info: any) => {
+  const handleAvatarUpload = (info: UploadInfo) => {
     if (info.file.status === 'done') {
       form.setFieldsValue({ avatarUrl: info.file.response });
       message.success('头像上传成功');

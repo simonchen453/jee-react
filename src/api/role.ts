@@ -54,17 +54,17 @@ export const getRoleDetailApi = (id: string): Promise<ApiResponse<RoleEntity>> =
 };
 
 // 创建角色
-export const createRoleApi = (params: RoleEntity): Promise<ApiResponse<any>> => {
+export const createRoleApi = (params: RoleEntity): Promise<ApiResponse<RoleEntity>> => {
   return request.post('/admin/role/create', params);
 };
 
 // 更新角色
-export const updateRoleApi = (params: RoleEntity): Promise<ApiResponse<any>> => {
+export const updateRoleApi = (params: RoleEntity): Promise<ApiResponse<RoleEntity>> => {
   return request.patch('/admin/role/edit', params);
 };
 
 // 删除角色
-export const deleteRoleApi = (ids: string): Promise<ApiResponse<any>> => {
+export const deleteRoleApi = (ids: string): Promise<ApiResponse<{ success: boolean }>> => {
   return request.delete(`/admin/role/delete?ids=${ids}`);
 };
 

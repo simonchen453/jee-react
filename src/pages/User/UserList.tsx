@@ -31,19 +31,13 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 import {
-  getUserListApi,
   activeUserApi,
   inactiveUserApi,
-  resetPasswordApi,
-  getUserDetailApi,
-  getUserPrepareDataApi,
-  deleteUserApi
+  getUserPrepareDataApi
 } from '../../api/user';
 import type {
   UserEntity,
   UserSearchForm,
-  UserDetailResponse,
-  UserResetPasswordRequest,
   DeptEntity,
   RoleEntity,
   PostEntity
@@ -77,13 +71,13 @@ const UserList: React.FC = () => {
   // 获取准备数据
   const fetchPrepareData = async () => {
     // 直接使用模拟数据，确保部门树能显示
-    const mockDepts = [
-      { id: '1', name: 'EcqEE集团', parentId: null },
-      { id: '2', name: '测试部门', parentId: '1' },
-      { id: '3', name: '开发部门', parentId: '1' },
-      { id: '4', name: '市场部门', parentId: '1' },
-      { id: '5', name: '人事部门', parentId: '1' },
-      { id: '6', name: '财务部门', parentId: '1' }
+    const mockDepts: DeptEntity[] = [
+      { id: '1', no: '1', name: 'EcqEE集团', parentId: '' },
+      { id: '2', no: '2', name: '测试部门', parentId: '1' },
+      { id: '3', no: '3', name: '开发部门', parentId: '1' },
+      { id: '4', no: '4', name: '市场部门', parentId: '1' },
+      { id: '5', no: '5', name: '人事部门', parentId: '1' },
+      { id: '6', no: '6', name: '财务部门', parentId: '1' }
     ];
     setDeptList(mockDepts);
     
@@ -99,14 +93,21 @@ const UserList: React.FC = () => {
     }
   };
 
+  // 部门树节点类型
+  interface DeptTreeNode {
+    key: string;
+    title: string;
+    children: DeptTreeNode[];
+  }
+
   // 构建部门树数据
-  const buildDeptTree = (depts: DeptEntity[]): any[] => {
+  const buildDeptTree = (depts: DeptEntity[]): DeptTreeNode[] => {
     if (!depts || depts.length === 0) {
       return [];
     }
 
-    const deptMap = new Map();
-    const rootNodes: any[] = [];
+    const deptMap = new Map<string, DeptTreeNode>();
+    const rootNodes: DeptTreeNode[] = [];
 
     // 先创建所有节点
     depts.forEach(dept => {
@@ -120,11 +121,15 @@ const UserList: React.FC = () => {
     // 构建树结构
     depts.forEach(dept => {
       const node = deptMap.get(dept.id);
-      if (dept.parentId && deptMap.has(dept.parentId)) {
-        const parent = deptMap.get(dept.parentId);
-        parent.children.push(node);
-      } else {
-        rootNodes.push(node);
+      if (node) {
+        if (dept.parentId && deptMap.has(dept.parentId)) {
+          const parent = deptMap.get(dept.parentId);
+          if (parent) {
+            parent.children.push(node);
+          }
+        } else {
+          rootNodes.push(node);
+        }
       }
     });
 
@@ -132,7 +137,7 @@ const UserList: React.FC = () => {
   };
 
   // 获取用户列表
-  const fetchUserList = async (params: UserSearchForm = {}) => {
+  const fetchUserList = async (_params: UserSearchForm = {}) => {
     setLoading(true);
     
     // 直接使用模拟数据，确保用户列表能显示
@@ -312,12 +317,12 @@ const UserList: React.FC = () => {
 
   // 获取状态标签
   const getStatusTag = (status: string) => {
-    const statusMap = {
+    const statusMap: Record<string, { color: string; text: string }> = {
       [UserStatus.ACTIVE]: { color: 'green', text: '正常' },
       [UserStatus.LOCK]: { color: 'red', text: '锁定' },
       [UserStatus.INACTIVE]: { color: 'orange', text: '停用' }
     };
-    const statusInfo = statusMap[status as UserStatus] || { color: 'default', text: status };
+    const statusInfo = statusMap[status] || { color: 'default', text: status };
     return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>;
   };
 

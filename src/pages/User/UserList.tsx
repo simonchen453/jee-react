@@ -566,7 +566,7 @@ const UserList: React.FC = () => {
                   </Col>
                 </Row>
                 <Row>
-                  <Col span={24} style={{ textAlign: 'right', marginTop: 12, marginLeft: 2}}>
+                  <Col span={24} style={{ textAlign: 'left', marginTop: 26, marginLeft: 2, marginBottom: 10 }}>
                     <Space>
                       <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
                         搜索

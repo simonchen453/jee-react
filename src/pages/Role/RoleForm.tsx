@@ -72,7 +72,9 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
       setCheckedKeys(response.data.checkedKeys || []);
       setHalfCheckedKeys([]);
     } catch (error) {
-      console.error('获取角色菜单权限失败:', error);
+      if (import.meta.env.DEV) {
+        console.error('获取角色菜单权限失败:', error);
+      }
       message.error('获取角色菜单权限失败');
     }
   };
@@ -123,7 +125,9 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
 
       onSuccess();
     } catch (error) {
-      console.error('提交失败:', error);
+      if (import.meta.env.DEV) {
+        console.error('提交失败:', error);
+      }
       message.error(role?.id ? '角色更新失败' : '角色创建失败');
     } finally {
       setLoading(false);

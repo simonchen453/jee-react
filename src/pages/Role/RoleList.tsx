@@ -48,7 +48,7 @@ const RoleList: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [, setSearchForm] = useState<RoleSearchForm>({});
+  const [searchForm, setSearchForm] = useState<RoleSearchForm>({});
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedRoles, setSelectedRoles] = useState<RoleEntity[]>([]);
   
@@ -120,7 +120,9 @@ const RoleList: React.FC = () => {
       const response = await getMenuTreeApi();
       setMenuOptions(response.data || []);
     } catch (error) {
-      console.error('获取菜单树失败:', error);
+      if (import.meta.env.DEV) {
+        console.error('获取菜单树失败:', error);
+      }
       // 使用模拟数据
       const mockMenus: MenuTreeNode[] = [
         {
@@ -267,26 +269,28 @@ const RoleList: React.FC = () => {
       title: '编号',
       dataIndex: 'name',
       key: 'name',
-      width: 120
+      ellipsis: true
     },
     {
       title: '显示名称',
       dataIndex: 'display',
       key: 'display',
-      width: 150
+      ellipsis: true,
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      width: 100,
+      align: 'center',
+      width: 120,
       render: (status: string) => getStatusTag(status)
     },
     {
       title: '系统配置',
       dataIndex: 'system',
       key: 'system',
-      width: 100,
+      width: 120,
+      align: 'center',
       render: (system: string) => getSystemTag(system)
     },
     {
@@ -325,14 +329,21 @@ const RoleList: React.FC = () => {
   return (
     <div style={{ padding: '24px', background: '#f5f5f5', minHeight: '100vh' }}>
       {/* 面包屑导航 */}
-      <Breadcrumb style={{ marginBottom: 16 }}>
-        <Breadcrumb.Item>
-          <Button type="link" icon={<HomeOutlined />} onClick={() => navigate('/')}>
-            首页
-          </Button>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>角色管理</Breadcrumb.Item>
-      </Breadcrumb>
+      <Breadcrumb>
+          <Breadcrumb.Item>
+            <Button
+              type="link"
+              icon={<HomeOutlined />}
+              onClick={() => navigate('/')}
+              style={{ padding: 0, height: 'auto', lineHeight: 1 }}
+            >
+              首页
+            </Button>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>
+            角色管理
+          </Breadcrumb.Item>
+        </Breadcrumb>
       
       <Divider />
 
@@ -373,7 +384,7 @@ const RoleList: React.FC = () => {
               </Col>
             </Row>
             <Row>
-              <Col span={24} style={{ textAlign: 'right' }}>
+              <Col span={24} style={{ textAlign: 'left', marginTop: 26, marginLeft: 2, marginBottom: 10 }}>
                 <Space>
                   <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
                     搜索

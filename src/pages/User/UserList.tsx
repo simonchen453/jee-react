@@ -338,45 +338,54 @@ const UserList: React.FC = () => {
       title: '用户域',
       dataIndex: ['userIden', 'userDomain'],
       key: 'userDomain',
-      width: 120
+      ellipsis: true,
+      // 添加最小宽度，并允许自动伸缩
+      responsive: ['sm'],
+      // 可以去掉width，让其自动适应
+      // minWidth自定义class可以在table组件的columns上加className
     },
     {
       title: '登录名',
       dataIndex: 'loginName',
       key: 'loginName',
-      width: 120
+      ellipsis: true,
+      responsive: ['sm'],
     },
     {
       title: '用户姓名',
       dataIndex: 'realName',
       key: 'realName',
-      width: 120
+      ellipsis: true,
+      responsive: ['sm'],
     },
     {
       title: '描述',
       dataIndex: 'description',
       key: 'description',
-      width: 150,
-      ellipsis: true
+      ellipsis: true,
+      responsive: ['md'],
     },
     {
       title: '上次登录时间',
       dataIndex: 'latestLoginTime',
       key: 'latestLoginTime',
-      width: 150,
+      ellipsis: true,
+      responsive: ['md'],
       render: (time: string) => time || '-'
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      width: 100,
+      width: 60,
       render: (status: string) => getStatusTag(status)
     },
     {
       title: '操作',
       key: 'action',
-      width: 300,
+      fixed: 'right',
+      // 操作列可给最小宽
+      width: 330,
       render: (_, record: UserEntity) => (
         <Space size="small">
           <Button
@@ -448,20 +457,32 @@ const UserList: React.FC = () => {
   return (
     <div style={{ padding: '24px', background: '#f5f5f5', minHeight: '100vh' }}>
       {/* 面包屑导航 */}
-      <Breadcrumb style={{ marginBottom: 16 }}>
-        <Breadcrumb.Item>
-          <Button type="link" icon={<HomeOutlined />} onClick={() => navigate('/')}>
-            首页
-          </Button>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>用户管理</Breadcrumb.Item>
-      </Breadcrumb>
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center' }}>
+        <Breadcrumb>
+          <Breadcrumb.Item>
+            <Button
+              type="link"
+              icon={<HomeOutlined />}
+              onClick={() => navigate('/')}
+              style={{ padding: 0, height: 'auto', lineHeight: 1 }}
+            >
+              首页
+            </Button>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>
+            用户管理
+          </Breadcrumb.Item>
+        </Breadcrumb>
+      </div>
       
       <Divider />
 
-      <Row gutter={20}>
+      <Row gutter={20} wrap={false}>
         {/* 部门树 */}
-        <Col span={6} xs={24}>
+        <Col
+          flex="0 0 300px"
+          style={{ minWidth: 260, maxWidth: 350 }}
+        >
           <Card title="部门列表" size="small" style={{ marginBottom: 16, height: '600px' }}>
             <Input
               placeholder="请输入部门名称"
@@ -506,9 +527,8 @@ const UserList: React.FC = () => {
             </div>
           </Card>
         </Col>
-
         {/* 用户数据 */}
-        <Col span={18} xs={24}>
+        <Col flex="1 1 0" style={{ minWidth: 0 }}>
           <Card>
             {/* 搜索表单 */}
             <Card size="small" style={{ marginBottom: 16 }}>
@@ -546,7 +566,7 @@ const UserList: React.FC = () => {
                   </Col>
                 </Row>
                 <Row>
-                  <Col span={24} style={{ textAlign: 'right' }}>
+                  <Col span={24} style={{ textAlign: 'right', marginTop: 12, marginLeft: 2}}>
                     <Space>
                       <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
                         搜索
@@ -590,7 +610,6 @@ const UserList: React.FC = () => {
                 rowKey={(record) => `${record.userIden.userDomain}-${record.userIden.userId}`}
                 rowSelection={rowSelection}
                 pagination={false}
-                scroll={{ x: 1200 }}
                 size="small"
               />
             </div>
@@ -623,7 +642,6 @@ const UserList: React.FC = () => {
         }}
         footer={null}
         width={800}
-        destroyOnClose
       >
         <UserForm
           user={editingUser}

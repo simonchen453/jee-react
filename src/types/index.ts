@@ -211,9 +211,9 @@ export interface DeptEntity {
 
 // 角色类型
 export interface RoleEntity {
-  id: string;
+  id?: string;
   name: string;
-  code: string;
+  code?: string;
 }
 
 // 岗位类型
@@ -255,21 +255,42 @@ export interface RoleSearchForm {
 
 // 角色实体
 export interface RoleEntity {
-  id: string;
+  id?: string;
   name: string;
   display: string;
-  code: string;
   status: string;
   system: string;
   menuNames?: string[];
+  code?: string;
 }
 
 // 角色列表响应
 export interface RoleListResponse {
-  records: RoleEntity[];
-  totalCount: number;
-  pageNo: number;
-  pageSize: number;
+  data: {
+    records: RoleEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+// 角色详情响应
+export interface RoleDetailResponse {
+  data: RoleEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+// 角色创建/更新响应
+export interface RoleCreateResponse {
+  data: RoleEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
 }
 
 // 菜单树节点
@@ -279,8 +300,21 @@ export interface MenuTreeNode {
   children?: MenuTreeNode[];
 }
 
+// 菜单树响应
+export interface MenuTreeResponse {
+  data: MenuTreeNode[];
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
 // 角色菜单树响应
 export interface RoleMenuTreeResponse {
-  menus: MenuTreeNode[];
-  checkedKeys: string[];
+  data: {
+    menus: MenuTreeNode[];
+    checkedKeys: string[];
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
 }

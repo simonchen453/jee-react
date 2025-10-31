@@ -20,14 +20,36 @@ export interface RoleEntity {
   status: string;
   system: string;
   menuNames?: string[];
+  code?: string;
 }
 
 // 角色列表响应
 export interface RoleListResponse {
-  records: RoleEntity[];
-  totalCount: number;
-  pageNo: number;
-  pageSize: number;
+  data: {
+    records: RoleEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+// 角色详情响应
+export interface RoleDetailResponse {
+  data: RoleEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+// 角色创建/更新响应
+export interface RoleCreateResponse {
+  data: RoleEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
 }
 
 // 菜单树节点
@@ -37,29 +59,42 @@ export interface MenuTreeNode {
   children?: MenuTreeNode[];
 }
 
+// 菜单树响应
+export interface MenuTreeResponse {
+  data: MenuTreeNode[];
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
 // 角色菜单树响应
 export interface RoleMenuTreeResponse {
-  menus: MenuTreeNode[];
-  checkedKeys: string[];
+  data: {
+    menus: MenuTreeNode[];
+    checkedKeys: string[];
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
 }
 
 // 查询角色列表
-export const getRoleListApi = (params: RoleSearchForm): Promise<ApiResponse<RoleListResponse>> => {
+export const getRoleListApi = (params: RoleSearchForm): Promise<RoleListResponse> => {
   return request.post('/admin/role/list', params);
 };
 
 // 获取角色详情
-export const getRoleDetailApi = (id: string): Promise<ApiResponse<RoleEntity>> => {
+export const getRoleDetailApi = (id: string): Promise<RoleDetailResponse> => {
   return request.get(`/admin/role/detail/${id}`);
 };
 
 // 创建角色
-export const createRoleApi = (params: RoleEntity): Promise<ApiResponse<RoleEntity>> => {
+export const createRoleApi = (params: RoleEntity): Promise<RoleCreateResponse> => {
   return request.post('/admin/role/create', params);
 };
 
 // 更新角色
-export const updateRoleApi = (params: RoleEntity): Promise<ApiResponse<RoleEntity>> => {
+export const updateRoleApi = (params: RoleEntity): Promise<RoleCreateResponse> => {
   return request.patch('/admin/role/edit', params);
 };
 
@@ -69,11 +104,11 @@ export const deleteRoleApi = (ids: string): Promise<ApiResponse<{ success: boole
 };
 
 // 获取菜单树结构
-export const getMenuTreeApi = (): Promise<ApiResponse<MenuTreeNode[]>> => {
+export const getMenuTreeApi = (): Promise<MenuTreeResponse> => {
   return request.get('/common/menu/treeSelect');
 };
 
 // 根据角色获取菜单树结构
-export const getRoleMenuTreeApi = (roleName: string): Promise<ApiResponse<RoleMenuTreeResponse>> => {
+export const getRoleMenuTreeApi = (roleName: string): Promise<RoleMenuTreeResponse> => {
   return request.get(`/common/menu/roleMenuTreeSelect/${roleName}`);
 };

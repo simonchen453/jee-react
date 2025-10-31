@@ -9,9 +9,8 @@ import {
   message,
   Card
 } from 'antd';
-import { createRoleApi, updateRoleApi, getRoleMenuTreeApi } from '../../api/role';
-import type { RoleEntity, MenuTreeNode } from '../../types';
-import { RoleStatus, SystemConfig } from '../../types';
+import { createRoleApi, updateRoleApi, getRoleMenuTreeApi, getRoleDetailApi } from '../../api/role';
+import { RoleStatus, SystemConfig, type RoleEntity, type MenuTreeNode } from '../../types';
 
 interface RoleFormProps {
   role?: RoleEntity | null;
@@ -44,18 +43,9 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
 
   // 初始化表单数据
   useEffect(() => {
-    if (role) {
-      form.setFieldsValue({
-        name: role.name,
-        display: role.display,
-        status: role.status,
-        system: role.system
-      });
-      
-      // 如果是编辑模式，获取角色的菜单权限
-      if (role.id) {
-        fetchRoleMenus(role.name);
-      }
+    if (role?.id) {
+      // 编辑模式：获取完整的角色详情
+      fetchRoleDetail(role.id);
     } else {
       // 新增模式，设置默认值
       form.setFieldsValue({
@@ -65,33 +55,55 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
     }
   }, [role, form]);
 
+  // 获取角色详情
+  const fetchRoleDetail = async (roleId: string) => {
+    try {
+      const response = await getRoleDetailApi(roleId);
+      if (response.restCode === '200') {
+        const roleData = response.data;
+        form.setFieldsValue({
+          name: roleData.name,
+          display: roleData.display,
+          status: roleData.status,
+          system: roleData.system
+        });
+
+        // 获取角色的菜单权限
+        if (roleData.name) {
+          fetchRoleMenus(roleData.name);
+        }
+      } else {
+        message.error(response.message || '获取角色详情失败');
+      }
+    } catch (error) {
+      console.error('获取角色详情失败:', error);
+      message.error('获取角色详情失败');
+    }
+  };
+
   // 获取角色的菜单权限
   const fetchRoleMenus = async (roleName: string) => {
     try {
       const response = await getRoleMenuTreeApi(roleName);
-      setCheckedKeys(response.data.checkedKeys || []);
-      setHalfCheckedKeys([]);
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('获取角色菜单权限失败:', error);
+      if (response.restCode === '200') {
+        setCheckedKeys(response.data.checkedKeys || []);
+        setHalfCheckedKeys([]);
+      } else {
+        message.error(response.message || '获取角色菜单权限失败');
       }
+    } catch (error) {
+      console.error('获取角色菜单权限失败:', error);
       message.error('获取角色菜单权限失败');
     }
   };
 
-  // 菜单选择变化类型定义
-  interface MenuCheckInfo {
-    checked?: string[];
-    halfChecked?: string[];
-  }
-
   // 处理菜单选择变化
-  const handleMenuCheck = (checked: string[] | MenuCheckInfo) => {
-    if (Array.isArray(checked)) {
-      setCheckedKeys(checked);
-    } else {
-      setCheckedKeys(checked.checked || []);
-      setHalfCheckedKeys(checked.halfChecked || []);
+  const handleMenuCheck = (checkedKeys: any) => {
+    if (Array.isArray(checkedKeys)) {
+      setCheckedKeys(checkedKeys);
+    } else if (checkedKeys.checked) {
+      setCheckedKeys(checkedKeys.checked || []);
+      setHalfCheckedKeys(checkedKeys.halfChecked || []);
     }
   };
 
@@ -108,26 +120,35 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
 
       const formData: RoleEntity = {
         id: role?.id || '',
-        code: values.name || '',
-        ...values,
+        name: values.name || '',
+        display: values.display || '',
+        status: values.status || '',
+        system: values.system || '',
         menuNames: getAllCheckedKeys()
       };
 
+      let response;
       if (role?.id) {
         // 编辑模式
-        await updateRoleApi({ ...formData, id: role.id });
-        message.success('角色更新成功');
+        response = await updateRoleApi(formData);
+        if (response.restCode === '200') {
+          message.success('角色更新成功');
+          onSuccess();
+        } else {
+          message.error(response.message || '角色更新失败');
+        }
       } else {
         // 新增模式
-        await createRoleApi(formData);
-        message.success('角色创建成功');
+        response = await createRoleApi(formData);
+        if (response.restCode === '200') {
+          message.success('角色创建成功');
+          onSuccess();
+        } else {
+          message.error(response.message || '角色创建失败');
+        }
       }
-
-      onSuccess();
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('提交失败:', error);
-      }
+      console.error('提交失败:', error);
       message.error(role?.id ? '角色更新失败' : '角色创建失败');
     } finally {
       setLoading(false);

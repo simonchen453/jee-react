@@ -22,20 +22,24 @@ import {
   DeleteOutlined,
   SearchOutlined,
   ClearOutlined,
-  HomeOutlined
+  HomeOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 import {
   deleteRoleApi,
-  getMenuTreeApi
+  getMenuTreeApi,
+  getRoleListApi
 } from '../../api/role';
-import type {
-  RoleEntity,
-  RoleSearchForm,
-  MenuTreeNode
+import {
+  RoleStatus,
+  SystemConfig,
+  type RoleEntity,
+  type RoleSearchForm,
+  type MenuTreeNode,
+  type RoleListResponse
 } from '../../types';
-import { RoleStatus, SystemConfig } from '../../types';
 import RoleForm from './RoleForm';
 
 const { Option } = Select;
@@ -62,88 +66,47 @@ const RoleList: React.FC = () => {
   // 获取角色列表
   const fetchRoleList = async () => {
     setLoading(true);
-    
-    // 使用模拟数据
-    const mockRoles: RoleEntity[] = [
-      {
-        id: '1',
-        name: 'admin',
-        display: '系统管理员',
-        code: 'ADMIN',
-        status: RoleStatus.ACTIVE,
-        system: SystemConfig.YES
-      },
-      {
-        id: '2',
-        name: 'user',
-        display: '普通用户',
-        code: 'USER',
-        status: RoleStatus.ACTIVE,
-        system: SystemConfig.NO
-      },
-      {
-        id: '3',
-        name: 'guest',
-        display: '访客',
-        code: 'GUEST',
-        status: RoleStatus.INACTIVE,
-        system: SystemConfig.NO
-      }
-    ];
-    
-    setRoleList(mockRoles);
-    setTotal(mockRoles.length);
-    setLoading(false);
-    
-    // 注释掉API调用，直接使用模拟数据
-    /*
     try {
-      const response = await getRoleListApi({
-        ...params,
+      const params = {
+        ...searchForm,
         pageNo: currentPage,
         pageSize: pageSize
-      });
-      setRoleList(response.data.records || []);
-      setTotal(response.data.totalCount || 0);
+      };
+
+      const response: RoleListResponse = await getRoleListApi(params);
+
+      if (response.restCode === '200') {
+        setRoleList(response.data.records || []);
+        setTotal(response.data.totalCount || 0);
+      } else {
+        message.error(response.message || '获取角色列表失败');
+        setRoleList([]);
+        setTotal(0);
+      }
     } catch (error) {
       console.error('获取角色列表失败:', error);
       message.error('获取角色列表失败');
+      setRoleList([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
-    */
   };
 
   // 获取菜单树
   const fetchMenuTree = async () => {
     try {
       const response = await getMenuTreeApi();
-      setMenuOptions(response.data || []);
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('获取菜单树失败:', error);
+      if (response.restCode === '200') {
+        setMenuOptions(response.data || []);
+      } else {
+        message.error(response.message || '获取菜单树失败');
+        setMenuOptions([]);
       }
-      // 使用模拟数据
-      const mockMenus: MenuTreeNode[] = [
-        {
-          id: '1',
-          label: '系统管理',
-          children: [
-            { id: '11', label: '用户管理' },
-            { id: '12', label: '角色管理' },
-            { id: '13', label: '菜单管理' }
-          ]
-        },
-        {
-          id: '2',
-          label: '业务管理',
-          children: [
-            { id: '21', label: '订单管理' },
-            { id: '22', label: '商品管理' }
-          ]
-        }
-      ];
-      setMenuOptions(mockMenus);
+    } catch (error) {
+      console.error('获取菜单树失败:', error);
+      message.error('获取菜单树失败');
+      setMenuOptions([]);
     }
   };
 
@@ -185,23 +148,43 @@ const RoleList: React.FC = () => {
 
   // 批量删除
   const handleBatchDelete = () => {
+    console.log('handleBatchDelete被调用', selectedRoles);
     if (selectedRoles.length === 0) {
       message.warning('请选择要删除的角色');
       return;
     }
-    
+
     Modal.confirm({
       title: '确认删除',
+      icon: <ExclamationCircleOutlined />,
       content: `确定要删除选中的 ${selectedRoles.length} 个角色吗？`,
+      okText: '确认',
+      cancelText: '取消',
+      okType: 'danger',
       onOk: async () => {
         try {
-          const ids = selectedRoles.map(role => role.id).join(',');
-          await deleteRoleApi(ids);
-          message.success('批量删除成功');
-          setSelectedRoles([]);
-          setSelectedRowKeys([]);
-          fetchRoleList();
+          const validIds = selectedRoles
+            .map(role => role.id)
+            .filter((id): id is string => id !== undefined);
+
+          if (validIds.length === 0) {
+            message.error('选中的角色中没有有效的ID');
+            return;
+          }
+
+          console.log('开始批量删除角色:', validIds);
+          const ids = validIds.join(',');
+          const response = await deleteRoleApi(ids);
+          if (response.restCode === '200') {
+            message.success('批量删除成功');
+            setSelectedRoles([]);
+            setSelectedRowKeys([]);
+            fetchRoleList();
+          } else {
+            message.error(response.message || '批量删除失败');
+          }
         } catch (error) {
+          console.error('批量删除失败:', error);
           message.error('批量删除失败');
         }
       }
@@ -210,15 +193,34 @@ const RoleList: React.FC = () => {
 
   // 单个删除
   const handleDelete = (role: RoleEntity) => {
+    console.log('handleDelete被调用', role);
+    if (!role.id) {
+      message.error('角色ID不存在');
+      return;
+    }
+
+    Modal.destroyAll(); // 先销毁所有弹框确保不会有残留
     Modal.confirm({
       title: '确认删除',
-      content: `确定要删除角色 ${role.display} 吗？`,
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要删除角色 "${role.display}" 吗？`,
+      okText: '确认',
+      cancelText: '取消',
+      okType: 'danger',
+      maskClosable: true,
+      centered: true, // 居中显示
       onOk: async () => {
         try {
-          await deleteRoleApi(role.id);
-          message.success('删除成功');
-          fetchRoleList();
+          console.log('开始删除角色:', role.id);
+          const response = await deleteRoleApi(role.id!);
+          if (response.restCode === '200') {
+            message.success('删除成功');
+            fetchRoleList();
+          } else {
+            message.error(response.message || '删除失败');
+          }
         } catch (error) {
+          console.error('删除失败:', error);
           message.error('删除失败');
         }
       }
@@ -310,7 +312,10 @@ const RoleList: React.FC = () => {
           <Button
             size="small"
             icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(record);
+            }}
             type="primary"
             danger
           >
@@ -409,7 +414,11 @@ const RoleList: React.FC = () => {
               danger 
               icon={<DeleteOutlined />} 
               disabled={selectedRoles.length === 0}
-              onClick={handleBatchDelete}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleBatchDelete();
+              }}
             >
               删除
             </Button>
@@ -425,7 +434,7 @@ const RoleList: React.FC = () => {
             columns={columns}
             dataSource={roleList}
             loading={loading}
-            rowKey="id"
+            rowKey={(record, index) => record.id || `role-${index}-${record.name}`}
             rowSelection={rowSelection}
             pagination={false}
             scroll={{ x: 800 }}

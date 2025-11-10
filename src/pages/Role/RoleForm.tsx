@@ -189,8 +189,13 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
           <Form.Item
             label="系统配置"
             name="system"
-            key={form.getFieldValue('system') || (role?.system ?? '')}
             rules={rules.system}
+              // 将服务器的 boolean 转成 string 给表单用
+            getValueProps={(value) => ({
+              value: value === true ? SystemConfig.YES : SystemConfig.NO,
+            })}
+              // 将表单选择的 string 转回 boolean 提交
+            normalize={(value) => value === SystemConfig.YES}
           >
             <Radio.Group>
               <Radio value={SystemConfig.YES}>是</Radio>

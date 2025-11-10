@@ -334,21 +334,25 @@ const RoleList: React.FC = () => {
   return (
     <div style={{ padding: '24px', background: '#f5f5f5', minHeight: '100vh' }}>
       {/* 面包屑导航 */}
-      <Breadcrumb>
-          <Breadcrumb.Item>
-            <Button
-              type="link"
-              icon={<HomeOutlined />}
-              onClick={() => navigate('/')}
-              style={{ padding: 0, height: 'auto', lineHeight: 1 }}
-            >
-              首页
-            </Button>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>
-            角色管理
-          </Breadcrumb.Item>
-        </Breadcrumb>
+      <Breadcrumb
+        items={[
+          {
+            title: (
+              <Button
+                type="link"
+                icon={<HomeOutlined />}
+                onClick={() => navigate('/')}
+                style={{ padding: 0, height: 'auto', lineHeight: 1 }}
+              >
+                首页
+              </Button>
+            )
+          },
+          {
+            title: '角色管理'
+          }
+        ]}
+      />
       
       <Divider />
 
@@ -434,7 +438,7 @@ const RoleList: React.FC = () => {
             columns={columns}
             dataSource={roleList}
             loading={loading}
-            rowKey={(record, index) => record.id || `role-${index}-${record.name}`}
+            rowKey={(record) => record.id || `role-${record.name}`}
             rowSelection={rowSelection}
             pagination={false}
             scroll={{ x: 800 }}
@@ -468,7 +472,7 @@ const RoleList: React.FC = () => {
         }}
         footer={null}
         width={600}
-        destroyOnClose
+        destroyOnHidden
       >
         <RoleForm
           role={editingRole}

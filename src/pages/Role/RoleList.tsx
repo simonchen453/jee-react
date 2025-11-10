@@ -199,7 +199,6 @@ const RoleList: React.FC = () => {
       return;
     }
 
-    Modal.destroyAll(); // 先销毁所有弹框确保不会有残留
     Modal.confirm({
       title: '确认删除',
       icon: <ExclamationCircleOutlined />,
@@ -209,6 +208,7 @@ const RoleList: React.FC = () => {
       okType: 'danger',
       maskClosable: true,
       centered: true, // 居中显示
+      getContainer: document.body, // 或者用 () => document.body
       onOk: async () => {
         try {
           console.log('开始删除角色:', role.id);
@@ -312,8 +312,7 @@ const RoleList: React.FC = () => {
           <Button
             size="small"
             icon={<DeleteOutlined />}
-            onClick={(e) => {
-              e.stopPropagation();
+            onClick={() => {
               handleDelete(record);
             }}
             type="primary"

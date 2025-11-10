@@ -105,7 +105,7 @@ export const deleteRoleApi = (ids: string): Promise<ApiResponse<{ success: boole
 
 // 获取菜单树结构
 export const getMenuTreeApi = (): Promise<MenuTreeResponse> => {
-  return request.get('/common/menu/treeSelect');
+  return request.get('/common/menu/treeselect');
 };
 
 // 根据角色获取菜单树结构

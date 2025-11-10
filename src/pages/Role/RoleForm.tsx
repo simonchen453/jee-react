@@ -23,7 +23,6 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [checkedKeys, setCheckedKeys] = useState<string[]>([]);
-  const [halfCheckedKeys, setHalfCheckedKeys] = useState<string[]>([]);
 
   // 表单验证规则
   const rules = {
@@ -87,7 +86,6 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
       const response = await getRoleMenuTreeApi(roleName);
       if (response.restCode === '200') {
         setCheckedKeys(response.data.checkedKeys || []);
-        setHalfCheckedKeys([]);
       } else {
         message.error(response.message || '获取角色菜单权限失败');
       }
@@ -103,13 +101,12 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
       setCheckedKeys(checkedKeys);
     } else if (checkedKeys.checked) {
       setCheckedKeys(checkedKeys.checked || []);
-      setHalfCheckedKeys(checkedKeys.halfChecked || []);
     }
   };
 
   // 获取所有选中的菜单节点（包括半选中的）
   const getAllCheckedKeys = () => {
-    return [...checkedKeys, ...halfCheckedKeys];
+    return [...checkedKeys];
   };
 
   // 提交表单
@@ -192,6 +189,7 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
           <Form.Item
             label="系统配置"
             name="system"
+            key={form.getFieldValue('system') || (role?.system ?? '')}
             rules={rules.system}
           >
             <Radio.Group>
@@ -219,7 +217,11 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
                 title: item.label,
                 children: item.children?.map(child => ({
                   key: child.id,
-                  title: child.label
+                  title: child.label,
+                  children: child.children?.map(grandchild => ({
+                    key: grandchild.id,
+                    title: grandchild.label
+                  }))
                 }))
               }))}
               checkStrictly={false}

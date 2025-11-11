@@ -22,8 +22,7 @@ import {
   DeleteOutlined,
   SearchOutlined,
   ClearOutlined,
-  HomeOutlined,
-  ExclamationCircleOutlined
+  HomeOutlined
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
@@ -55,7 +54,6 @@ const RoleList: React.FC = () => {
   const [searchForm, setSearchForm] = useState<RoleSearchForm>({});
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedRoles, setSelectedRoles] = useState<RoleEntity[]>([]);
-  
   // 模态框状态
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRole, setEditingRole] = useState<RoleEntity | null>(null);
@@ -148,19 +146,13 @@ const RoleList: React.FC = () => {
 
   // 批量删除
   const handleBatchDelete = () => {
-    console.log('handleBatchDelete被调用', selectedRoles);
     if (selectedRoles.length === 0) {
       message.warning('请选择要删除的角色');
       return;
     }
-
     Modal.confirm({
       title: '确认删除',
-      icon: <ExclamationCircleOutlined />,
       content: `确定要删除选中的 ${selectedRoles.length} 个角色吗？`,
-      okText: '确认',
-      cancelText: '取消',
-      okType: 'danger',
       onOk: async () => {
         try {
           const validIds = selectedRoles
@@ -193,7 +185,6 @@ const RoleList: React.FC = () => {
 
   // 单个删除
   const handleDelete = (role: RoleEntity) => {
-    console.log('handleDelete被调用', role);
     if (!role.id) {
       message.error('角色ID不存在');
       return;
@@ -201,17 +192,14 @@ const RoleList: React.FC = () => {
 
     Modal.confirm({
       title: '确认删除',
-      icon: <ExclamationCircleOutlined />,
       content: `确定要删除角色 "${role.display}" 吗？`,
       okText: '确认',
       cancelText: '取消',
-      okType: 'danger',
       maskClosable: true,
-      centered: true, // 居中显示
-      getContainer: document.body, // 或者用 () => document.body
+      centered: true,
+      getContainer: () => document.getElementById('root') || document.body,
       onOk: async () => {
         try {
-          console.log('开始删除角色:', role.id);
           const response = await deleteRoleApi(role.id!);
           if (response.restCode === '200') {
             message.success('删除成功');
@@ -417,9 +405,7 @@ const RoleList: React.FC = () => {
               danger 
               icon={<DeleteOutlined />} 
               disabled={selectedRoles.length === 0}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
+              onClick={() => {
                 handleBatchDelete();
               }}
             >

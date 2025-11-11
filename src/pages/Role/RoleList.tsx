@@ -62,13 +62,13 @@ const RoleList: React.FC = () => {
   const [menuOptions, setMenuOptions] = useState<MenuTreeNode[]>([]);
 
   // 获取角色列表
-  const fetchRoleList = async (searchParams?: RoleSearchForm) => {
+  const fetchRoleList = async (searchParams?: RoleSearchForm, page?: number, size?: number) => {
     setLoading(true);
     try {
       const params = {
         ...(searchParams || searchForm),
-        pageNo: currentPage,
-        pageSize: pageSize
+        pageNo: page ?? currentPage,
+        pageSize: size ?? pageSize
       };
 
       const response: RoleListResponse = await getRoleListApi(params);
@@ -112,7 +112,7 @@ const RoleList: React.FC = () => {
   const handleSearch = (values: RoleSearchForm) => {
     setSearchForm(values);
     setCurrentPage(1);
-    fetchRoleList(values);
+    fetchRoleList(values, 1);
   };
 
   // 重置搜索
@@ -121,16 +121,17 @@ const RoleList: React.FC = () => {
     const emptyForm = {};
     setSearchForm(emptyForm);
     setCurrentPage(1);
-    fetchRoleList(emptyForm);
+    fetchRoleList(emptyForm, 1);
   };
 
   // 分页变化
   const handlePageChange = (page: number, size?: number) => {
+    const newPageSize = size ?? pageSize;
     setCurrentPage(page);
     if (size) {
       setPageSize(size);
     }
-    fetchRoleList();
+    fetchRoleList(undefined, page, newPageSize);
   };
 
   // 编辑角色

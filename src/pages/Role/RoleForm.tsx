@@ -164,7 +164,7 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
             name="name"
             rules={rules.name}
           >
-            <Input placeholder="请输入角色编号" />
+            <Input placeholder="请输入角色编号" allowClear />
           </Form.Item>
 
           <Form.Item
@@ -172,7 +172,7 @@ const RoleForm: React.FC<RoleFormProps> = ({ role, menuOptions, onSuccess, onCan
             name="display"
             rules={rules.display}
           >
-            <Input placeholder="请输入角色显示名称" />
+            <Input placeholder="请输入角色显示名称" allowClear />
           </Form.Item>
 
           <Form.Item

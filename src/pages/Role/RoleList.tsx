@@ -62,11 +62,11 @@ const RoleList: React.FC = () => {
   const [menuOptions, setMenuOptions] = useState<MenuTreeNode[]>([]);
 
   // 获取角色列表
-  const fetchRoleList = async () => {
+  const fetchRoleList = async (searchParams?: RoleSearchForm) => {
     setLoading(true);
     try {
       const params = {
-        ...searchForm,
+        ...(searchParams || searchForm),
         pageNo: currentPage,
         pageSize: pageSize
       };
@@ -112,15 +112,16 @@ const RoleList: React.FC = () => {
   const handleSearch = (values: RoleSearchForm) => {
     setSearchForm(values);
     setCurrentPage(1);
-    fetchRoleList();
+    fetchRoleList(values);
   };
 
   // 重置搜索
   const handleReset = () => {
     form.resetFields();
-    setSearchForm({});
+    const emptyForm = {};
+    setSearchForm(emptyForm);
     setCurrentPage(1);
-    fetchRoleList();
+    fetchRoleList(emptyForm);
   };
 
   // 分页变化
@@ -354,12 +355,12 @@ const RoleList: React.FC = () => {
             <Row gutter={[16, 16]} style={{ width: '100%' }}>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item name="name" label="编号">
-                  <Input placeholder="请输入编号" />
+                  <Input placeholder="请输入编号" allowClear />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
                 <Form.Item name="display" label="显示名称">
-                  <Input placeholder="请输入显示名称" />
+                  <Input placeholder="请输入显示名称" allowClear />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>

@@ -3,6 +3,7 @@ import {
   Form,
   Input,
   Select,
+  TreeSelect,
   Button,
   Row,
   Col,
@@ -11,17 +12,13 @@ import {
   Space
 } from 'antd';
 import {
-  PlusOutlined,
-  UploadOutlined,
   UserOutlined
 } from '@ant-design/icons';
-import { createUserApi, updateUserApi, getUserDetailApi } from '../../api/user';
+import { createUserApi, updateUserApi, getUserDetailApi, getDomainListApi } from '../../api/user';
 import type {
   UserEntity,
   UserCreateRequest,
   UserUpdateRequest,
-  UserDetailResponse,
-  DeptEntity,
   RoleEntity,
   PostEntity
 } from '../../types';
@@ -30,9 +27,16 @@ import { UserStatus } from '../../types';
 const { Option } = Select;
 const { TextArea } = Input;
 
+interface DeptTreeNode {
+  key: string;
+  title: string;
+  value: string;
+  children?: DeptTreeNode[];
+}
+
 interface UserFormProps {
   user?: UserEntity | null;
-  deptList: DeptEntity[];
+  deptTreeData: DeptTreeNode[];
   roleList: RoleEntity[];
   postList: PostEntity[];
   onSuccess: () => void;
@@ -41,7 +45,7 @@ interface UserFormProps {
 
 const UserForm: React.FC<UserFormProps> = ({
   user,
-  deptList,
+  deptTreeData,
   roleList,
   postList,
   onSuccess,
@@ -49,8 +53,33 @@ const UserForm: React.FC<UserFormProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = React.useState(false);
+  const [domainList, setDomainList] = React.useState<Array<{ id: string; name: string;display: string }>>([]);
 
   const isEdit = !!user;
+
+  // 加载用户域列表
+  useEffect(() => {
+    const fetchDomainList = async () => {
+      try {
+        const domains = await getDomainListApi();
+        setDomainList(domains || []);
+      } catch (error) {
+        console.error('获取用户域列表失败:', error);
+      }
+    };
+    fetchDomainList();
+  }, []);
+
+  // 重置表单（新增用户时）
+  useEffect(() => {
+    if (!user) {
+      form.resetFields();
+      form.setFieldsValue({
+        status: UserStatus.ACTIVE,
+        sex: '男'
+      });
+    }
+  }, [user, form]);
 
   // 获取用户详情（编辑时）
   useEffect(() => {
@@ -203,8 +232,7 @@ const UserForm: React.FC<UserFormProps> = ({
       onFinish={handleSubmit}
       initialValues={{
         status: UserStatus.ACTIVE,
-        sex: '男',
-        userDomain: 'default'
+        sex: '男'
       }}
     >
       <Row gutter={16}>
@@ -214,8 +242,12 @@ const UserForm: React.FC<UserFormProps> = ({
             label="用户域"
             rules={[{ required: true, message: '请选择用户域' }]}
           >
-            <Select placeholder="请选择用户域" disabled={isEdit} style={{ width: 280 }}>
-              <Option value="default">默认域</Option>
+            <Select placeholder="请选择用户域" disabled={isEdit} allowClear>
+              {domainList.map(domain => (
+                <Option key={domain.id} value={domain.id}>
+                  {domain.display}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
         </Col>
@@ -249,13 +281,14 @@ const UserForm: React.FC<UserFormProps> = ({
             label="归属部门"
             rules={[{ required: true, message: '请选择归属部门' }]}
           >
-            <Select placeholder="请选择归属部门" style={{ width: 280 }}>
-              {deptList.map(dept => (
-                <Option key={dept.id} value={dept.id}>
-                  {dept.name}
-                </Option>
-              ))}
-            </Select>
+            <TreeSelect
+              placeholder="请选择归属部门"
+              treeData={deptTreeData}
+              treeDefaultExpandAll
+              showSearch
+              allowClear
+              treeNodeFilterProp="title"
+            />
           </Form.Item>
         </Col>
       </Row>
@@ -328,7 +361,7 @@ const UserForm: React.FC<UserFormProps> = ({
             label="性别"
             rules={[{ required: true, message: '请选择性别' }]}
           >
-            <Select placeholder="请选择性别" style={{ width: 280 }}>
+            <Select placeholder="请选择性别" allowClear>
               <Option value="male">男</Option>
               <Option value="female">女</Option>
             </Select>
@@ -340,7 +373,7 @@ const UserForm: React.FC<UserFormProps> = ({
             label="状态"
             rules={[{ required: true, message: '请选择状态' }]}
           >
-            <Select placeholder="请选择状态" style={{ width: 280 }}>
+            <Select placeholder="请选择状态" allowClear>
               <Option value={UserStatus.ACTIVE}>正常</Option>
               <Option value={UserStatus.LOCK}>锁定</Option>
               <Option value={UserStatus.INACTIVE}>停用</Option>
@@ -359,7 +392,6 @@ const UserForm: React.FC<UserFormProps> = ({
             <Select
               mode="multiple"
               placeholder="请选择岗位"
-              style={{ width: 280 }}
               allowClear
             >
               {postList.map(post => (
@@ -379,12 +411,11 @@ const UserForm: React.FC<UserFormProps> = ({
             <Select
               mode="multiple"
               placeholder="请选择角色"
-              style={{ width: 280 }}
               allowClear
             >
               {roleList.map(role => (
                 <Option key={role.id} value={role.id}>
-                  {role.name}
+                  {role.display}
                 </Option>
               ))}
             </Select>

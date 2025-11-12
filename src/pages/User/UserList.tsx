@@ -33,12 +33,14 @@ import { useNavigate } from 'react-router-dom';
 import {
   activeUserApi,
   inactiveUserApi,
-  getUserPrepareDataApi
+  getUserPrepareDataApi,
+  getUserListApi,
+  getDeptTreeSelectApi,
+  getDomainListApi
 } from '../../api/user';
 import type {
   UserEntity,
   UserSearchForm,
-  DeptEntity,
   RoleEntity,
   PostEntity
 } from '../../types';
@@ -64,135 +66,97 @@ const UserList: React.FC = () => {
   const [editingUser, setEditingUser] = useState<UserEntity | null>(null);
   
   // 下拉选项数据
-  const [deptList, setDeptList] = useState<DeptEntity[]>([]);
+  const [deptTreeData, setDeptTreeData] = useState<DeptTreeNode[]>([]);
   const [roleList, setRoleList] = useState<RoleEntity[]>([]);
   const [postList, setPostList] = useState<PostEntity[]>([]);
-
-  // 获取准备数据
-  const fetchPrepareData = async () => {
-    // 直接使用模拟数据，确保部门树能显示
-    const mockDepts: DeptEntity[] = [
-      { id: '1', no: '1', name: 'EcqEE集团', parentId: '' },
-      { id: '2', no: '2', name: '测试部门', parentId: '1' },
-      { id: '3', no: '3', name: '开发部门', parentId: '1' },
-      { id: '4', no: '4', name: '市场部门', parentId: '1' },
-      { id: '5', no: '5', name: '人事部门', parentId: '1' },
-      { id: '6', no: '6', name: '财务部门', parentId: '1' }
-    ];
-    setDeptList(mockDepts);
-    
-    try {
-      const data = await getUserPrepareDataApi();
-      setRoleList(data.roles || []);
-      setPostList(data.posts || []);
-    } catch (error) {
-      console.error('获取准备数据失败:', error);
-      // 使用模拟数据
-      setRoleList([]);
-      setPostList([]);
-    }
-  };
+  const [domainList, setDomainList] = useState<Array<{ id: string; name: string; display: string }>>([]);
 
   // 部门树节点类型
   interface DeptTreeNode {
     key: string;
     title: string;
-    children: DeptTreeNode[];
+    children?: DeptTreeNode[];
   }
 
-  // 构建部门树数据
-  const buildDeptTree = (depts: DeptEntity[]): DeptTreeNode[] => {
-    if (!depts || depts.length === 0) {
+  // API返回的部门树数据格式
+  interface DeptTreeApiResponse {
+    id: string;
+    label: string;
+    children?: DeptTreeApiResponse[];
+  }
+
+  // 转换API返回的树形数据为Ant Design Tree需要的格式
+  const convertDeptTree = (data: DeptTreeApiResponse[]): DeptTreeNode[] => {
+    if (!data || data.length === 0) {
       return [];
     }
 
-    const deptMap = new Map<string, DeptTreeNode>();
-    const rootNodes: DeptTreeNode[] = [];
+    return data.map(item => ({
+      key: item.id,
+      title: item.label,
+      children: item.children ? convertDeptTree(item.children) : undefined
+    }));
+  };
 
-    // 先创建所有节点
-    depts.forEach(dept => {
-      deptMap.set(dept.id, {
-        key: dept.id,
-        title: dept.name,
-        children: []
-      });
-    });
+  // 转换树形数据为TreeSelect需要的格式（添加value字段）
+  const convertToTreeSelectData = (treeData: DeptTreeNode[]): Array<{
+    key: string;
+    title: string;
+    value: string;
+    children?: Array<{ key: string; title: string; value: string; children?: any[] }>;
+  }> => {
+    return treeData.map(node => ({
+      key: node.key,
+      title: node.title,
+      value: node.key,
+      children: node.children ? convertToTreeSelectData(node.children) : undefined
+    }));
+  };
 
-    // 构建树结构
-    depts.forEach(dept => {
-      const node = deptMap.get(dept.id);
-      if (node) {
-        if (dept.parentId && deptMap.has(dept.parentId)) {
-          const parent = deptMap.get(dept.parentId);
-          if (parent) {
-            parent.children.push(node);
-          }
-        } else {
-          rootNodes.push(node);
-        }
-      }
-    });
-
-    return rootNodes;
+  // 获取准备数据
+  const fetchPrepareData = async () => {
+    try {
+      const [deptData, prepareData, domains] = await Promise.all([
+        getDeptTreeSelectApi(),
+        getUserPrepareDataApi(),
+        getDomainListApi()
+      ]);
+      
+      const apiDeptData = deptData as unknown as DeptTreeApiResponse[];
+      const treeData = convertDeptTree(apiDeptData);
+      
+      setDeptTreeData(treeData);
+      setRoleList(prepareData.roles || []);
+      setPostList(prepareData.posts || []);
+      setDomainList(domains || []);
+    } catch (error) {
+      console.error('获取准备数据失败:', error);
+      setDeptTreeData([]);
+      setRoleList([]);
+      setPostList([]);
+      setDomainList([]);
+    }
   };
 
   // 获取用户列表
-  const fetchUserList = async (_params: UserSearchForm = {}) => {
+  const fetchUserList = async (params: UserSearchForm = {}) => {
     setLoading(true);
     
-    // 直接使用模拟数据，确保用户列表能显示
-    const mockUsers = [
-      {
-        userIden: { userDomain: '局域网用户', userId: 'user001' },
-        loginName: 'test',
-        realName: '王小二',
-        mobileNo: '13800138000',
-        email: 'test@example.com',
-        status: UserStatus.ACTIVE,
-        description: '测试账号',
-        latestLoginTime: '2020-06-04 00:00:00'
-      },
-      {
-        userIden: { userDomain: '系统用户', userId: 'user002' },
-        loginName: 'admin',
-        realName: '系统管理员',
-        mobileNo: '13800138001',
-        email: 'admin@example.com',
-        status: UserStatus.ACTIVE,
-        description: '系统管理员',
-        latestLoginTime: '2025-10-18 18:29:31'
-      },
-      {
-        userIden: { userDomain: '系统用户', userId: 'user003' },
-        loginName: 'superadmin',
-        realName: '系统超级管理员',
-        mobileNo: '13800138002',
-        email: 'superadmin@example.com',
-        status: UserStatus.ACTIVE,
-        description: '超级管理员',
-        latestLoginTime: '2025-10-19 11:50:16'
-      }
-    ];
-    setUserList(mockUsers);
-    setTotal(mockUsers.length);
-    setLoading(false);
-    
-    // 注释掉API调用，直接使用模拟数据
-    /*
     try {
       const response = await getUserListApi({
         ...params,
-        page: currentPage,
-        pageSize: pageSize
+        page: params.page ?? currentPage,
+        pageSize: params.pageSize ?? pageSize
       });
       setUserList(response.list || []);
       setTotal(response.pagination?.total || 0);
     } catch (error) {
       console.error('获取用户列表失败:', error);
+      setUserList([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
-    */
   };
 
   // 搜索
@@ -446,13 +410,12 @@ const UserList: React.FC = () => {
 
   // 当部门数据加载完成后，确保树能正确显示
   useEffect(() => {
-    if (deptList.length > 0) {
-      console.log('部门数据已加载:', deptList);
-      console.log('构建的树数据:', buildDeptTree(deptList));
+    if (deptTreeData.length > 0) {
+      console.log('部门树数据已加载:', deptTreeData);
     } else {
-      console.log('部门数据为空，长度:', deptList.length);
+      console.log('部门树数据为空，长度:', deptTreeData.length);
     }
-  }, [deptList]);
+  }, [deptTreeData]);
 
   return (
     <div style={{ padding: '24px', background: '#f5f5f5', minHeight: '100vh' }}>
@@ -502,9 +465,9 @@ const UserList: React.FC = () => {
               padding: '12px', 
               background: '#fafafa'
             }}>
-              {deptList.length > 0 ? (
+              {deptTreeData.length > 0 ? (
                 <Tree
-                  treeData={buildDeptTree(deptList)}
+                  treeData={deptTreeData}
                   showLine={false}
                   defaultExpandAll
                   onSelect={(selectedKeys, info) => {
@@ -524,7 +487,7 @@ const UserList: React.FC = () => {
                 <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
                   <div>暂无部门数据</div>
                   <div style={{ fontSize: '12px', marginTop: '8px' }}>
-                    部门数量: {deptList.length}
+                    部门数量: {deptTreeData.length}
                   </div>
                 </div>
               )}
@@ -545,7 +508,11 @@ const UserList: React.FC = () => {
                   <Col xs={24} sm={12} md={6}>
                     <Form.Item name="userDomain" label="用户域">
                       <Select placeholder="请选择用户域" allowClear style={{ width: '100%' }}>
-                        <Option value="default">默认域</Option>
+                        {domainList.map(domain => (
+                          <Option key={domain.id} value={domain.id}>
+                            {domain.display}
+                          </Option>
+                        ))}
                       </Select>
                     </Form.Item>
                   </Col>
@@ -649,7 +616,7 @@ const UserList: React.FC = () => {
       >
         <UserForm
           user={editingUser}
-          deptList={deptList}
+          deptTreeData={convertToTreeSelectData(deptTreeData)}
           roleList={roleList}
           postList={postList}
           onSuccess={() => {

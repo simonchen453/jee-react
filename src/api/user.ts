@@ -67,6 +67,12 @@ export const getDeptListApi = async (): Promise<DeptEntity[]> => {
   return response.data;
 };
 
+// 获取部门树结构（用于树形选择）
+export const getDeptTreeSelectApi = async (): Promise<any[]> => {
+  const response = await request.get<ApiResponse<any[]>>('/common/dept/treeselect');
+  return response.data;
+};
+
 // 获取角色列表（用于下拉选择）
 export const getRoleListApi = async (): Promise<RoleEntity[]> => {
   const response = await request.get<ApiResponse<RoleEntity[]>>('/admin/role/list');
@@ -97,4 +103,10 @@ export const getUserPrepareDataApi = async (): Promise<{
 export const deleteUserApi = async (userIds: string): Promise<ApiResponse> => {
   const response = await request.delete<ApiResponse>(`/admin/user/delete?users=${userIds}`);
   return response;
+};
+
+// 获取用户域列表
+export const getDomainListApi = async (): Promise<Array<{ id: string; name: string;display: string }>> => {
+  const response = await request.get<ApiResponse<Array<{ id: string; name: string;display: string }>>>('/common/domains');
+  return response.data;
 };

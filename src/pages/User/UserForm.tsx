@@ -207,24 +207,6 @@ const UserForm: React.FC<UserFormProps> = ({
     }
   };
 
-  // 上传信息类型定义
-  interface UploadInfo {
-    file: {
-      status: 'uploading' | 'done' | 'error' | 'removed';
-      response?: string;
-    };
-  }
-
-  // 头像上传
-  const handleAvatarUpload = (info: UploadInfo) => {
-    if (info.file.status === 'done') {
-      form.setFieldsValue({ avatarUrl: info.file.response });
-      message.success('头像上传成功');
-    } else if (info.file.status === 'error') {
-      message.error('头像上传失败');
-    }
-  };
-
   return (
     <Form
       form={form}
@@ -434,7 +416,15 @@ const UserForm: React.FC<UserFormProps> = ({
               listType="picture-card"
               showUploadList={false}
               action="/api/upload"
-              onChange={handleAvatarUpload}
+              onChange={(info) => {
+                if (info.file.status === 'done') {
+                  // 服务器返回的url通常在 response 字段里
+                  form.setFieldsValue({ avatarUrl: info.file.response });
+                  message.success('头像上传成功');
+                } else if (info.file.status === 'error') {
+                  message.error('头像上传失败');
+                }
+              }}
             >
               <div>
                 <UserOutlined />

@@ -148,8 +148,21 @@ const UserList: React.FC = () => {
         page: params.page ?? currentPage,
         pageSize: params.pageSize ?? pageSize
       });
-      setUserList(response.list || []);
-      setTotal(response.pagination?.total || 0);
+      
+      const responseData = response as any;
+      const list = responseData?.list || responseData?.records || responseData?.data?.list || responseData?.data?.records || [];
+      const total = responseData?.pagination?.total || responseData?.totalCount || responseData?.data?.pagination?.total || responseData?.data?.totalCount || 0;
+      
+      console.log('提取后的list:', list);
+      console.log('提取后的total:', total);
+      
+      if (Array.isArray(list)) {
+        setUserList(list);
+        setTotal(total);
+      } else {
+        setUserList([]);
+        setTotal(0);
+      }
     } catch (error) {
       console.error('获取用户列表失败:', error);
       setUserList([]);
@@ -416,6 +429,16 @@ const UserList: React.FC = () => {
     }
   }, [deptTreeData]);
 
+  // 监控userList变化，用于调试
+  useEffect(() => {
+    console.log('userList状态变化:', {
+      length: userList.length,
+      data: userList,
+      total: total,
+      loading: loading
+    });
+  }, [userList, total, loading]);
+
   return (
     <div style={{ padding: '24px', background: '#f5f5f5', minHeight: '100vh' }}>
       {/* 面包屑导航 */}
@@ -576,10 +599,18 @@ const UserList: React.FC = () => {
                 columns={columns}
                 dataSource={userList}
                 loading={loading}
-                rowKey={(record) => `${record.userIden.userDomain}-${record.userIden.userId}`}
+                rowKey={(record, index) => {
+                  if (record?.userIden?.userDomain && record?.userIden?.userId) {
+                    return `${record.userIden.userDomain}-${record.userIden.userId}`;
+                  }
+                  return `row-${index}`;
+                }}
                 rowSelection={rowSelection}
                 pagination={false}
                 size="small"
+                locale={{
+                  emptyText: userList.length === 0 && !loading ? '暂无数据' : undefined
+                }}
               />
             </div>
 

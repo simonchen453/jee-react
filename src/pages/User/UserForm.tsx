@@ -139,6 +139,7 @@ const UserForm: React.FC<UserFormProps> = ({
           description: values.description,
           deptId: values.deptId,
           password: values.password || '', // 编辑时密码可以为空
+          confirmPassword: values.confirmPassword || '', // 编辑时密码可以为空
           roleIds: values.roleIds || [],
           postIds: values.postIds || []
         };
@@ -158,6 +159,7 @@ const UserForm: React.FC<UserFormProps> = ({
           description: values.description,
           deptId: values.deptId,
           password: values.password,
+          confirmPassword: values.confirmPassword,
           roleIds: values.roleIds || [],
           postIds: values.postIds || []
         };
@@ -358,7 +360,6 @@ const UserForm: React.FC<UserFormProps> = ({
             <Select placeholder="请选择状态" allowClear>
               <Option value={UserStatus.ACTIVE}>正常</Option>
               <Option value={UserStatus.LOCK}>锁定</Option>
-              <Option value={UserStatus.INACTIVE}>停用</Option>
             </Select>
           </Form.Item>
         </Col>

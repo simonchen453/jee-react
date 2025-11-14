@@ -163,6 +163,7 @@ export interface UserCreateRequest {
   description?: string;
   deptId?: string;
   password: string;
+  confirmPassword?: string;
   roleIds: string[];
   postIds: string[];
 }
@@ -225,9 +226,8 @@ export interface PostEntity {
 
 // 用户状态常量
 export const UserStatus = {
-  ACTIVE: 'ACTIVE',
-  LOCK: 'LOCK',
-  INACTIVE: 'INACTIVE'
+  ACTIVE: '20',
+  LOCK: '30'
 } as const;
 
 // 角色状态常量

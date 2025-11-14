@@ -284,7 +284,6 @@ const UserList: React.FC = () => {
     const statusMap: Record<string, { color: string; text: string }> = {
       [UserStatus.ACTIVE]: { color: 'green', text: '正常' },
       [UserStatus.LOCK]: { color: 'red', text: '锁定' },
-      [UserStatus.INACTIVE]: { color: 'orange', text: '停用' }
     };
     const statusInfo = statusMap[status] || { color: 'default', text: status };
     return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>;
@@ -531,7 +530,6 @@ const UserList: React.FC = () => {
                       <Select placeholder="请选择状态" allowClear style={{ width: '100%' }}>
                         <Option value={UserStatus.ACTIVE}>正常</Option>
                         <Option value={UserStatus.LOCK}>锁定</Option>
-                        <Option value={UserStatus.INACTIVE}>停用</Option>
                       </Select>
                     </Form.Item>
                   </Col>

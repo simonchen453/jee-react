@@ -114,7 +114,7 @@ const UserForm: React.FC<UserFormProps> = ({
     sex: string;
     description?: string;
     deptId: string;
-    password: string;
+    password?: string;
     confirmPassword?: string;
     roleIds: string[];
     postIds: string[];
@@ -158,8 +158,8 @@ const UserForm: React.FC<UserFormProps> = ({
           sex: values.sex,
           description: values.description,
           deptId: values.deptId,
-          password: values.password,
-          confirmPassword: values.confirmPassword,
+          password: values.password || '',
+          confirmPassword: values.confirmPassword || '',
           roleIds: values.roleIds || [],
           postIds: values.postIds || []
         };
@@ -228,7 +228,7 @@ const UserForm: React.FC<UserFormProps> = ({
           >
             <Select placeholder="请选择用户域" disabled={isEdit} allowClear>
               {domainList.map(domain => (
-                <Option key={domain.id} value={domain.id}>
+                <Option key={domain.name} value={domain.name}>
                   {domain.display}
                 </Option>
               ))}
@@ -304,39 +304,41 @@ const UserForm: React.FC<UserFormProps> = ({
         </Col>
       </Row>
 
-      <Row gutter={16}>
-        <Col span={12}>
-          <Form.Item
-            name="password"
-            label="密码"
-            rules={[
-              { required: !isEdit, message: '请输入密码' },
-              { min: 6, message: '密码至少6个字符' }
-            ]}
-          >
-            <Input.Password placeholder={isEdit ? '留空则不修改密码' : '请输入密码'} maxLength={50} />
-          </Form.Item>
-        </Col>
-        <Col span={12}>
-          <Form.Item
-            name="confirmPassword"
-            label="确认密码"
-            rules={[
-              { required: !isEdit, message: '请输入确认密码' },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue('password') === value) {
-                    return Promise.resolve();
+      {!isEdit && (
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              name="password"
+              label="密码"
+              rules={[
+                { required: true, message: '请输入密码' },
+                { min: 6, message: '密码至少6个字符' }
+              ]}
+            >
+              <Input.Password placeholder="请输入密码" maxLength={50} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="confirmPassword"
+              label="确认密码"
+              rules={[
+                { required: true, message: '请输入确认密码' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('两次密码不一致'));
                   }
-                  return Promise.reject(new Error('两次密码不一致'));
-                }
-              })
-            ]}
-          >
-            <Input.Password placeholder={isEdit ? '留空则不修改密码' : '请再次输入密码'} maxLength={50} />
-          </Form.Item>
-        </Col>
-      </Row>
+                })
+              ]}
+            >
+              <Input.Password placeholder="请再次输入密码" maxLength={50} />
+            </Form.Item>
+          </Col>
+        </Row>
+      )}
 
       <Row gutter={16}>
         <Col span={12}>

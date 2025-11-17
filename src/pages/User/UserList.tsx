@@ -37,7 +37,8 @@ import {
   getUserListApi,
   getDeptTreeSelectApi,
   getDomainListApi,
-  deleteUserApi
+  deleteUserApi,
+  resetPasswordApi
 } from '../../api/user';
 import type {
   UserEntity,
@@ -53,6 +54,7 @@ const { Option } = Select;
 const UserList: React.FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const [resetForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [userList, setUserList] = useState<UserEntity[]>([]);
   const [total, setTotal] = useState(0);
@@ -65,6 +67,10 @@ const UserList: React.FC = () => {
   // 模态框状态
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<UserEntity | null>(null);
+  const [formKey, setFormKey] = useState(0);
+  const [resetModalVisible, setResetModalVisible] = useState(false);
+  const [resetTargetUser, setResetTargetUser] = useState<UserEntity | null>(null);
+  const [resetLoading, setResetLoading] = useState(false);
   
   // 下拉选项数据
   const [deptTreeData, setDeptTreeData] = useState<DeptTreeNode[]>([]);
@@ -198,44 +204,97 @@ const UserList: React.FC = () => {
   };
 
   // 激活用户
-  const handleActive = async (user: UserEntity) => {
-    try {
-      const result = await activeUserApi(user.userIden.userDomain, user.userIden.userId);
-      if (result.success) {
-        message.success('用户激活成功');
-        fetchUserList(searchForm);
-      } else {
-        message.error(result.message || '用户激活失败');
+  const handleActive = (user: UserEntity) => {
+    Modal.confirm({
+      title: '确认启用',
+      content: `确定要启用用户 ${user.realName} 吗？`,
+      okText: '确定',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          const result = await activeUserApi(user.userIden.userDomain, user.userIden.userId);
+          if (result.success) {
+            message.success('用户激活成功');
+            fetchUserList(searchForm);
+          } else {
+            message.error(result.message || '用户激活失败');
+          }
+        } catch (error) {
+          message.error('用户激活失败');
+        }
       }
-    } catch (error) {
-      message.error('用户激活失败');
-    }
+    });
   };
 
   // 停用用户
-  const handleInactive = async (user: UserEntity) => {
-    try {
-      const result = await inactiveUserApi(user.userIden.userDomain, user.userIden.userId);
-      if (result.success) {
-        message.success('用户停用成功');
-        fetchUserList(searchForm);
-      } else {
-        message.error(result.message || '用户停用失败');
+  const handleInactive = (user: UserEntity) => {
+    Modal.confirm({
+      title: '确认停用',
+      content: `确定要停用用户 ${user.realName} 吗？`,
+      okText: '确定',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          const result = await inactiveUserApi(user.userIden.userDomain, user.userIden.userId);
+          if (result.success) {
+            message.success('用户停用成功');
+            fetchUserList(searchForm);
+          } else {
+            message.error(result.message || '用户停用失败');
+          }
+        } catch (error) {
+          message.error('用户停用失败');
+        }
       }
-    } catch (error) {
-      message.error('用户停用失败');
-    }
+    });
   };
 
   // 重置密码
   const handleResetPassword = (user: UserEntity) => {
-    Modal.confirm({
-      title: '重置密码',
-      content: `确定要重置用户 ${user.realName} 的密码吗？`,
-      onOk: () => {
-        message.success('密码重置成功');
+    setResetTargetUser(user);
+    resetForm.resetFields();
+    setResetModalVisible(true);
+  };
+
+  const handleResetPwdSubmit = async () => {
+    if (!resetTargetUser) {
+      return;
+    }
+    try {
+      const values = await resetForm.validateFields();
+      setResetLoading(true);
+      await resetPasswordApi({
+        userDomain: resetTargetUser.userIden.userDomain,
+        userId: resetTargetUser.userIden.userId,
+        newPassword: values.newPassword,
+        confirmPassword: values.confirmPassword
+      });
+      message.success('用户密码重置成功');
+      setResetModalVisible(false);
+      setResetTargetUser(null);
+      resetForm.resetFields();
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'errorFields' in error) {
+        return;
       }
-    });
+      console.error('重置密码失败:', error);
+      let errorMessage = '用户密码重置失败';
+      if (error && typeof error === 'object' && 'response' in error) {
+        const errorResponse = error as { response?: { data?: { message?: string; errorsMap?: Record<string, string> } } };
+        if (errorResponse.response?.data?.message) {
+          errorMessage = errorResponse.response.data.message;
+        }
+        if (errorResponse.response?.data?.errorsMap) {
+          const map = errorResponse.response.data.errorsMap;
+          Object.keys(map).forEach(field => {
+            resetForm.setFields([{ name: field, errors: [map[field]] }]);
+          });
+        }
+      }
+      message.error(errorMessage);
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   // 编辑用户
@@ -247,6 +306,7 @@ const UserList: React.FC = () => {
   // 创建用户
   const handleCreate = () => {
     setEditingUser(null);
+    setFormKey(prev => prev + 1);
     setIsModalVisible(true);
   };
 
@@ -345,8 +405,11 @@ const UserList: React.FC = () => {
       dataIndex: ['userIden', 'userDomain'],
       key: 'userDomain',
       ellipsis: true,
-      // 添加最小宽度，并允许自动伸缩
       responsive: ['sm'],
+      render: (userDomain: string) => {
+        const domain = domainList.find(d => d.name === userDomain || d.id === userDomain);
+        return domain ? domain.display : userDomain;
+      },
       // 可以去掉width，让其自动适应
       // minWidth自定义class可以在table组件的columns上加className
     },
@@ -561,7 +624,7 @@ const UserList: React.FC = () => {
                     <Form.Item name="userDomain" label="用户域">
                       <Select placeholder="请选择用户域" allowClear style={{ width: '100%' }}>
                         {domainList.map(domain => (
-                          <Option key={domain.id} value={domain.id}>
+                          <Option key={domain.name} value={domain.name}>
                             {domain.display}
                           </Option>
                         ))}
@@ -674,6 +737,7 @@ const UserList: React.FC = () => {
         width={800}
       >
         <UserForm
+          key={editingUser ? `edit-${editingUser.userIden.userDomain}-${editingUser.userIden.userId}` : `new-${formKey}`}
           user={editingUser}
           deptTreeData={convertToTreeSelectData(deptTreeData)}
           roleList={roleList}
@@ -688,6 +752,54 @@ const UserList: React.FC = () => {
             setEditingUser(null);
           }}
         />
+      </Modal>
+
+      <Modal
+        title={`重置密码${resetTargetUser ? ` - ${resetTargetUser.realName}` : ''}`}
+        open={resetModalVisible}
+        onCancel={() => {
+          setResetModalVisible(false);
+          setResetTargetUser(null);
+          resetForm.resetFields();
+        }}
+        onOk={handleResetPwdSubmit}
+        confirmLoading={resetLoading}
+        okText="确定"
+        cancelText="取消"
+      >
+        <Form
+          form={resetForm}
+          layout="vertical"
+        >
+          <Form.Item
+            name="newPassword"
+            label="新密码"
+            rules={[
+              { required: true, message: '请输入新密码' },
+              { min: 6, message: '密码至少6个字符' }
+            ]}
+          >
+            <Input.Password placeholder="请输入新密码" maxLength={50} />
+          </Form.Item>
+          <Form.Item
+            name="confirmPassword"
+            label="确认密码"
+            dependencies={['newPassword']}
+            rules={[
+              { required: true, message: '请再次输入新密码' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('newPassword') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('两次密码不一致'));
+                }
+              })
+            ]}
+          >
+            <Input.Password placeholder="请再次输入新密码" maxLength={50} />
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

@@ -36,7 +36,8 @@ import {
   getUserPrepareDataApi,
   getUserListApi,
   getDeptTreeSelectApi,
-  getDomainListApi
+  getDomainListApi,
+  deleteUserApi
 } from '../../api/user';
 import type {
   UserEntity,
@@ -256,14 +257,32 @@ const UserList: React.FC = () => {
       return;
     }
     
+    let ids = '';
+    for (let i = 0; i < selectedUsers.length; i++) {
+      ids += selectedUsers[i].userIden.userDomain + '_' + selectedUsers[i].userIden.userId + ',';
+    }
+    if (ids.indexOf(',') !== -1) {
+      ids = ids.slice(0, ids.length - 1);
+    }
+    
     Modal.confirm({
       title: '确认删除',
       content: `确定要删除选中的 ${selectedUsers.length} 个用户吗？`,
-      onOk: () => {
-        message.success('批量删除成功');
-        setSelectedUsers([]);
-        setSelectedRowKeys([]);
-        fetchUserList(searchForm);
+      onOk: async () => {
+        try {
+          const response = await deleteUserApi(ids);
+          if (response.restCode === '200') {
+            setSelectedUsers([]);
+            setSelectedRowKeys([]);
+            fetchUserList(searchForm);
+            message.success('用户删除成功');
+          } else {
+            message.error('用户删除失败');
+          }
+        } catch (error) {
+          console.error('删除失败:', error);
+          message.error('用户删除失败');
+        }
       }
     });
   };
@@ -272,10 +291,21 @@ const UserList: React.FC = () => {
   const handleDelete = (user: UserEntity) => {
     Modal.confirm({
       title: '确认删除',
-      content: `确定要删除用户 ${user.realName} 吗？`,
-      onOk: () => {
-        message.success('删除成功');
-        fetchUserList(searchForm);
+      content: `是否删除用户(${user.realName})？`,
+      onOk: async () => {
+        try {
+          const userId = user.userIden.userDomain + '_' + user.userIden.userId;
+          const response = await deleteUserApi(userId);
+          if (response.restCode === '200') {
+            fetchUserList(searchForm);
+            message.success('用户删除成功');
+          } else {
+            message.error('用户删除失败');
+          }
+        } catch (error) {
+          console.error('删除失败:', error);
+          message.error('用户删除失败');
+        }
       }
     });
   };

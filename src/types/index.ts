@@ -318,3 +318,80 @@ export interface RoleMenuTreeResponse {
   message: string;
   success: boolean;
 }
+
+// 菜单管理相关类型
+export interface MenuEntity {
+  id?: string;
+  parentId: string | number;
+  display: string;
+  name: string;
+  icon?: string;
+  type: string;
+  orderNum?: number;
+  permission?: string;
+  url?: string;
+  status: string;
+  visible?: string;
+  createdDate?: string;
+  children?: MenuEntity[];
+}
+
+export interface MenuSearchForm {
+  name?: string;
+  status?: string;
+}
+
+export interface MenuListResponse {
+  data: MenuEntity[];
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+export interface MenuDetailResponse {
+  data: MenuEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+export interface MenuCreateResponse {
+  data: MenuEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+export interface MenuTreeSelectNode {
+  id: string;
+  display: string;
+  children?: MenuTreeSelectNode[];
+}
+
+export interface MenuTreeSelectResponse {
+  data: MenuTreeSelectNode[];
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+// 菜单类型常量
+export const MenuType = {
+  DIRECTORY: 'M',
+  MENU: 'C',
+  BUTTON: 'F'
+} as const;
+
+// 菜单状态常量
+export const MenuStatus = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive'
+} as const;
+
+// 菜单显示状态常量
+export const MenuVisible = {
+  SHOW: 'show',
+  HIDE: 'hide'
+} as const;

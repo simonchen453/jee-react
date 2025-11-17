@@ -1,0 +1,364 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+    <body>
+        <div layout:fragment="content">
+            <div class="wrapper" id="app" v-cloak>
+                <div class="body_container">
+                    <div class="custom_container table">
+                        <div class="crumbs">
+                            <el-breadcrumb separator-class="el-icon-arrow-right">
+                                <el-breadcrumb-item>
+                                    <a onclick="EcqEE.Common.router('/home');">
+                                        <i class="el-icon-menu"></i>首页
+                                    </a>
+                                </el-breadcrumb-item>
+                                <el-breadcrumb-item>菜单管理</el-breadcrumb-item>
+                            </el-breadcrumb>
+                        </div>
+                        <hr>
+                        <el-form :inline="true">
+                            <el-form-item label="菜单名称" label-width="auto">
+                                <el-input v-model="queryParams.name" placeholder="请输入菜单名称" clearable size="small"
+                                          @keyup.enter.native="handleQuery"></el-input>
+                            </el-form-item>
+                            <el-form-item label="状态">
+                                <el-select v-model="queryParams.status" placeholder="菜单状态" clearable size="small">
+                                    <el-option v-for="dict in menuStatus" :key="dict.key"
+                                               :label="dict.value" :value="dict.key"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索
+                                </el-button>
+                                <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd"
+                                           v-permission="['system:menu']">新增
+                                </el-button>
+                            </el-form-item>
+                        </el-form>
+
+                        <el-table v-loading="loading" :data="tableData" row-key="id" default-expand-all
+                                  :tree-props="{children: 'children', hasChildren: 'hasChildren'}">
+                            <el-table-column prop="display" label="菜单显示名称" :show-overflow-tooltip="true"
+                                             width="160"></el-table-column>
+                            <el-table-column prop="name" label="菜单名称" width="250"></el-table-column>
+                            <el-table-column prop="icon" label="图标" align="center" width="100">
+                                <template slot-scope="scope">
+                                    <i :class="scope.row.icon" aria-hidden="true"></i>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="orderNum" label="排序" width="60"></el-table-column>
+                            <el-table-column prop="permission" label="权限标识"
+                                             :show-overflow-tooltip="true"></el-table-column>
+                            <el-table-column prop="url" label="组件路径" :show-overflow-tooltip="true"></el-table-column>
+                            <el-table-column prop="status" label="状态" width="80">
+                                <template slot-scope="scope">
+                                    <span v-html="showDictLabel(scope.row.status, commonStatus)"></span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="创建时间" prop="createdDate" width="150">
+                                <template slot-scope="scope">
+                                    <span>{{ scope.row.createdDate | dateTimeFilter }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作" class-name="small-padding fixed-width">
+                                <template slot-scope="scope">
+                                    <el-button size="mini" type="primary" icon="el-icon-edit"
+                                               @click="handleUpdate(scope.row)" v-permission="['system:menu']">修改
+                                    </el-button>
+                                    <el-button size="mini" type="primary" icon="el-icon-plus"
+                                               @click="handleAdd(scope.row)" v-permission="['system:menu']">新增
+                                    </el-button>
+                                    <el-button size="mini" type="danger" icon="el-icon-delete"
+                                               @click="handleDelete(scope.row)" v-permission="['system:menu']">删除
+                                    </el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                    <!-- 添加或修改菜单对话框 -->
+                    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body :close-on-click-modal="false">
+                        <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="上级菜单" prop="parentId" :error="errorsMap.parentId">
+                                        <treeselect v-model="form.parentId" :options="menuOptions"
+                                                    :normalizer="normalizer" :show-count="true"
+                                                    placeholder="选择上级菜单"></treeselect>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="24">
+                                    <el-form-item label="菜单类型" prop="type" :error="errorsMap.type">
+                                        <el-radio-group v-model="form.type">
+                                            <el-radio v-for="type in menuType" :key="type.key" :label="type.key">
+                                                {{type.value}}
+                                            </el-radio>
+                                        </el-radio-group>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="24">
+                                    <el-form-item v-if="form.type != 'F'" label="菜单图标" :error="errorsMap.icon">
+                                        <el-input v-model="form.icon" placeholder="请输入菜单图标"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item label="菜单名称" prop="name" :error="errorsMap.name">
+                                        <el-input v-model="form.name" placeholder="请输入菜单名称"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item label="显示名称" prop="display" :error="errorsMap.display">
+                                        <el-input v-model="form.display" placeholder="请输入显示名称"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="24" v-if="form.type == 'C'">
+                                    <el-form-item label="链接路径" prop="url" :error="errorsMap.url">
+                                        <el-input v-model="form.url" placeholder="请输入链接路径"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="form.type == 'M'?24:12">
+                                    <el-form-item label="显示排序" prop="orderNum" :error="errorsMap.orderNum">
+                                        <el-input-number v-model="form.orderNum" controls-position="right" :min="0" style="width: 300px;"></el-input-number>
+                                    </el-form-item>
+                                </el-col>
+
+                                <el-col :span="12" v-if="form.type != 'M'">
+                                    <el-form-item label="权限标识" prop="permission" :error="errorsMap.permission">
+                                        <el-input v-model="form.permission" placeholder="请输入权限标识" maxlength="50" style="width: 300px;"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item v-if="form.type != 'F'" prop="visible" label="显示状态">
+                                        <el-select v-model="form.visible" placeholder="请选择" style="width: 300px;">
+                                            <el-option
+                                                    v-for="dict in menuDisplay"
+                                                    :key="dict.key"
+                                                    :label="dict.value"
+                                                    :value="dict.key"
+                                            ></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="12">
+                                    <el-form-item label="菜单状态" prop="status" :error="errorsMap.status">
+                                        <el-select v-model="form.status" placeholder="请选择" style="width: 300px;">
+                                            <el-option
+                                                    v-for="dict in menuStatus"
+                                                    :key="dict.key"
+                                                    :label="dict.value"
+                                                    :value="dict.key"
+                                            ></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                        <div slot="footer" class="dialog-footer">
+                            <el-button type="primary" @click="submitForm">确 定</el-button>
+                            <el-button @click="cancel">取 消</el-button>
+                        </div>
+                    </el-dialog>
+                </div>
+            </div>
+            <script th:inline="javascript" type="text/babel">
+                Vue.component('treeselect', VueTreeselect.Treeselect);
+                let vm = new Vue({
+                    el: '#app',
+                    data: function () {
+                        let self = this;
+                        return {
+                            // 遮罩层
+                            loading: true,
+                            // 菜单树选项
+                            menuOptions: [],
+                            // 弹出层标题
+                            title: "",
+                            // 是否显示弹出层
+                            open: false,
+                            // 显示状态数据字典
+                            visibleOptions: [],
+                            // 菜单状态数据字典
+                            statusOptions: [],
+
+                            url: "/admin/menu",
+                            queryParams: {
+                                name: undefined,
+                                visible: undefined
+                            },
+
+                            form: {},
+
+                            // 表单校验
+                            rules: {
+                                display: [
+                                    {required: true, message: "菜单名称不能为空", trigger: "blur"}
+                                ],
+                                orderNum: [
+                                    {required: true, message: "菜单顺序不能为空", trigger: "blur"}
+                                ],
+                                path: [
+                                    {required: true, message: "路由地址不能为空", trigger: "blur"}
+                                ],
+                                name: [
+                                    {required: true, message: "请输入菜单名称", trigger: "blur"}
+                                ],
+                                parentId: [
+                                    {required: true, message: "请选择上级菜单", trigger: "blur"}
+                                ],
+                                url: [
+                                    {required: true, message: "请输入链接路径", trigger: "blur"}
+                                ],
+                                permission: [
+                                    {required: true, message: "请输入权限标识", trigger: "blur"}
+                                ],
+                                status: [
+                                    {required: true, message: "请选择状态", trigger: "blur"}
+                                ],
+                                visible: [
+                                    {required: true, message: "请选择显示状态", trigger: "blur"}
+                                ]
+                            },
+
+                            parentMenus: [[${parentMenus}]],
+                            checkAll: false,
+                            tableData: [],
+                            searchForm: [[${session.MenuController}]],
+                            multipleSelection: [],
+                            select_list: [],
+                            selectedStr: "",
+                            menuStatus: [[${T(com.ecqee.core.base.enums.CommonStatus).getConfigList()}]],
+                            commonStatus: [[${@dict.getDictData('common_status')}]],
+                            menuDisplay: [[${T(com.ecqee.rbac.enums.MenuDisplay).getConfigList()}]],
+                            menuType: [[${T(com.ecqee.rbac.enums.MenuType).getConfigList()}]],
+                            errorsMap: {}
+                        }
+                    },
+                    created: function () {
+                        this.loadData();
+                    },
+                    methods: {
+                        //主页面js方法
+                        /** 查询菜单列表 */
+                        loadData() {
+                            this.loading = true;
+                            axios.post(this.url + "/list", this.queryParams).then(response => {
+                                this.tableData = this.handleTree(response.data.data, "id");
+                                this.loading = false;
+                            });
+                        },
+                        /** 转换菜单数据结构 */
+                        normalizer(node) {
+                            if (node.children && !node.children.length) {
+                                delete node.children;
+                            }
+                            return {
+                                id: node.id,
+                                label: node.display,
+                                children: node.children
+                            };
+                        },
+
+                        //Dialog js方法
+                        /** 查询菜单下拉树结构 */
+                        getTreeSelect() {
+                            axios.post(this.url + "/list", this.queryParams).then(response => {
+                                this.menuOptions = [];
+                                const menu = {id: 0, display: '主类目', children: []};
+                                menu.children = this.handleTree(response.data.data, "id");
+                                this.menuOptions.push(menu);
+                            });
+                        },
+                        // 取消按钮
+                        cancel() {
+                            this.open = false;
+                            this.reset();
+                        },
+                        // 表单重置
+                        reset() {
+                            this.form = {
+                                id: undefined,
+                                parentId: 0,
+                                display: undefined,
+                                icon: undefined,
+                                type: "M",
+                                orderNum: undefined,
+                                frame: "false",
+                                visible: "show",
+                                status: "active"
+                            };
+                            this.errorsMap = {};
+                        },
+                        /** 搜索按钮操作 */
+                        handleQuery() {
+                            this.loadData();
+                        },
+                        /** 新增按钮操作 */
+                        handleAdd(row) {
+                            this.reset();
+                            this.getTreeSelect();
+                            if (row != null) {
+                                this.form.parentId = row.id;
+                            }
+                            this.open = true;
+                            this.title = "添加菜单";
+                        },
+                        /** 修改按钮操作 */
+                        handleUpdate(row) {
+                            this.reset();
+                            this.getTreeSelect();
+                            axios.get(this.url + "/detail/" + row.id).then(response => {
+                                this.form = response.data.data;
+                                this.form.frame = this.form.frame + '';
+                                this.open = true;
+                                this.title = "修改菜单";
+                            });
+                        },
+                        /** 提交按钮 */
+                        submitForm: function () {
+                            this.errorsMap = {};
+                            this.$refs["form"].validate(valid => {
+                                if (valid) {
+                                    if (this.form.id != undefined) {
+                                        axios.patch(this.url + "/edit", this.form).then(response => {
+                                            let res = response.data;
+                                            if (res.restCode == 200) {
+                                                this.open = false;
+                                                this.msgSuccess("修改成功");
+                                                this.loadData();
+                                            } else {
+                                                this.errorsMap = res.errorsMap;
+                                                this.msgError("修改失败");
+                                            }
+                                        });
+                                    } else {
+                                        axios.post(this.url + "/create", this.form).then(response => {
+                                            let res = response.data;
+                                            if (res.restCode == 200) {
+                                                this.open = false;
+                                                this.msgSuccess("新增成功");
+                                                this.loadData();
+                                            } else {
+                                                this.errorsMap = res.errorsMap;
+                                                this.msgError("新增失败");
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        },
+                        /** 删除按钮操作 */
+                        handleDelete(row) {
+                            this.confirm('是否确认删除名称为"' + row.display + '"的数据项?').then(() => {
+                                axios.delete(this.url + "/delete/" + row.id).then(response => {
+                                    this.loadData();
+                                    this.msgSuccess("删除成功");
+                                });
+                            });
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </body>
+</html>

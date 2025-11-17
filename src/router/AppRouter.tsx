@@ -9,8 +9,6 @@ import PublicRoute from '../components/PublicRoute';
 const Login = lazy(() => import('../pages/Login/Login.tsx'));
 const Home = lazy(() => import('../pages/Home'));
 const UserList = lazy(() => import('../pages/User/UserList'));
-const UserDetail = lazy(() => import('../pages/User/UserDetail'));
-const UserEdit = lazy(() => import('../pages/User/UserEdit'));
 const RoleList = lazy(() => import('../pages/Role/RoleList'));
 const MenuList = lazy(() => import('../pages/Menu/MenuList'));
 const ChangePassword = lazy(() => import('../pages/ChangePassword/ChangePassword'));
@@ -64,15 +62,7 @@ function AppRouter() {
                             </Suspense>
                         } 
                     />
-                    <Route 
-                        path="users" 
-                        element={
-                            <Suspense fallback={<LoadingSpinner />}>
-                                <UserList />
-                            </Suspense>
-                        } 
-                    />
-                    <Route 
+                    <Route
                         path="admin/user" 
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
@@ -80,39 +70,7 @@ function AppRouter() {
                             </Suspense>
                         } 
                     />
-                    <Route 
-                        path="user/list" 
-                        element={
-                            <Suspense fallback={<LoadingSpinner />}>
-                                <UserList />
-                            </Suspense>
-                        } 
-                    />
-                    <Route 
-                        path="user/detail/:userDomain/:userId" 
-                        element={
-                            <Suspense fallback={<LoadingSpinner />}>
-                                <UserDetail />
-                            </Suspense>
-                        } 
-                    />
-                    <Route 
-                        path="user/edit/:userDomain/:userId" 
-                        element={
-                            <Suspense fallback={<LoadingSpinner />}>
-                                <UserEdit />
-                            </Suspense>
-                        } 
-                    />
-                    <Route 
-                        path="roles" 
-                        element={
-                            <Suspense fallback={<LoadingSpinner />}>
-                                <RoleList />
-                            </Suspense>
-                        } 
-                    />
-                    <Route 
+                    <Route
                         path="admin/role" 
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
@@ -120,23 +78,7 @@ function AppRouter() {
                             </Suspense>
                         } 
                     />
-                    <Route 
-                        path="role/list" 
-                        element={
-                            <Suspense fallback={<LoadingSpinner />}>
-                                <RoleList />
-                            </Suspense>
-                        } 
-                    />
-                    <Route 
-                        path="menus" 
-                        element={
-                            <Suspense fallback={<LoadingSpinner />}>
-                                <MenuList />
-                            </Suspense>
-                        } 
-                    />
-                    <Route 
+                    <Route
                         path="admin/menu" 
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
@@ -144,24 +86,18 @@ function AppRouter() {
                             </Suspense>
                         } 
                     />
-                    <Route 
-                        path="menu/list" 
-                        element={
-                            <Suspense fallback={<LoadingSpinner />}>
-                                <MenuList />
-                            </Suspense>
-                        } 
-                    />
-                    <Route 
-                        path="changepwd" 
+
+                    <Route
+                        path="changepwd"
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
                                 <ChangePassword />
                             </Suspense>
-                        } 
+                        }
                     />
                 </Route>
-                <Route 
+
+                <Route
                     path="/no-permission" 
                     element={
                         <Suspense fallback={<LoadingSpinner />}>

@@ -111,3 +111,27 @@ export const isValidPhone = (phone: string): boolean => {
   const phoneRegex = /^1[3-9]\d{9}$/;
   return phoneRegex.test(phone);
 };
+
+/**
+ * 下载文件
+ */
+export const downloadFile = (url: string, filename?: string): void => {
+  const link = document.createElement('a');
+  link.href = url;
+  link.style.display = 'none';
+  if (filename) {
+    link.download = filename;
+  }
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+/**
+ * 下载Blob文件
+ */
+export const downloadBlob = (blob: Blob, filename: string): void => {
+  const url = window.URL.createObjectURL(blob);
+  downloadFile(url, filename);
+  window.URL.revokeObjectURL(url);
+};

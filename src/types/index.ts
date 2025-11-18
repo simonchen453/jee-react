@@ -968,3 +968,29 @@ export interface AuditLogDetailResponse {
   success: boolean;
   errorsMap?: Record<string, string>;
 }
+
+// 代码生成器相关类型
+export interface GeneratorSearchForm {
+  tableName?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+export interface GeneratorEntity {
+  tableName: string;
+  tableComment?: string;
+  createdDate?: string;
+  updatedDate?: string;
+}
+
+export interface GeneratorListResponse {
+  data: {
+    records: GeneratorEntity[];
+    totalCount: number;
+    totalPage?: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}

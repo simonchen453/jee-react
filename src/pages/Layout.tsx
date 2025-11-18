@@ -25,7 +25,8 @@ import {
 } from '@ant-design/icons';
 import { useAuthStore } from '../stores/useUserStore';
 import { getMenuList } from '../api/menu';
-import type { MenuItem, BackendMenuItem } from '../types/index';
+import { getSystemInfoApi } from '../api/common';
+import type { MenuItem, BackendMenuItem, SystemInfo } from '../types/index';
 import './Layout.css';
 
 const { Header, Sider, Content, Footer } = AntLayout;
@@ -37,6 +38,7 @@ function MainLayout() {
     const [openKeys, setOpenKeys] = useState<string[]>([]);
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
     const [, setLoading] = useState(true);
+    const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
     const navigate = useNavigate();
     const { logout, currentUser } = useAuthStore();
     const {
@@ -142,6 +144,21 @@ function MainLayout() {
         }
         return null;
     };
+
+    // 加载系统信息
+    useEffect(() => {
+        const loadSystemInfo = async () => {
+            try {
+                const response = await getSystemInfoApi();
+                if (response.data) {
+                    setSystemInfo(response.data);
+                }
+            } catch (error) {
+                console.error('获取系统信息失败:', error);
+            }
+        };
+        loadSystemInfo();
+    }, []);
 
     // 加载菜单数据
     useEffect(() => {
@@ -336,7 +353,7 @@ function MainLayout() {
                     </div>
                     {!collapsed && (
                         <div className="logo-text">
-                            <div className="logo-title">Admin Pro</div>
+                            <div className="logo-title">{systemInfo?.platformShortName || 'Admin Pro'}</div>
                             <div className="logo-subtitle">管理系统</div>
                         </div>
                     )}
@@ -403,13 +420,15 @@ function MainLayout() {
                 </Content>
                 <Footer style={{ textAlign: 'center' }}>
                     <div className="copyright-text">
-                        Copyright © {new Date().getFullYear()} Admin Pro 管理系统. All rights reserved.
+                        {systemInfo?.copyRight || `Copyright © ${new Date().getFullYear()} Admin Pro 管理系统. All rights reserved.`}
                     </div>
-                    <div className="copyright-subtitle" style={{ marginTop: '8px' }}>
-                        <span>版本 1.0.0</span>
-                        <span style={{ margin: '0 8px' }}>|</span>
-                        <span>技术支持: admin@admin-pro.com</span>
-                    </div>
+                    {(systemInfo?.releaseVersion || systemInfo?.buildVersion) && (
+                        <div className="copyright-subtitle" style={{ marginTop: '8px' }}>
+                            {systemInfo.releaseVersion && <span>版本: {systemInfo.releaseVersion}</span>}
+                            {systemInfo.releaseVersion && systemInfo.buildVersion && <span style={{ margin: '0 8px' }}>|</span>}
+                            {systemInfo.buildVersion && <span>构建版本: {systemInfo.buildVersion}</span>}
+                        </div>
+                    )}
                 </Footer>
             </AntLayout>
         </AntLayout>

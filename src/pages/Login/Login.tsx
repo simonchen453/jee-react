@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import { useAuthStore } from '../../stores/useUserStore.ts';
 import Captcha, {type CaptchaRef } from '../../components/Captcha';
-import type { LoginRequest } from '../../types/index';
+import { getSystemInfoApi } from '../../api/common';
+import type { LoginRequest, SystemInfo } from '../../types/index';
 import './Login.css';
 
 const loginSchema = z.object({
@@ -23,6 +24,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [captchaKey, setCaptchaKey] = useState<string>('');
+  const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
   const captchaRef = useRef<CaptchaRef>(null);
   const navigate = useNavigate();
   const { login } = useAuthStore();
@@ -44,6 +46,20 @@ const Login: React.FC = () => {
 
   const [messageApi, contextHolder] = message.useMessage();
 
+  useEffect(() => {
+    const loadSystemInfo = async () => {
+      try {
+        const response = await getSystemInfoApi();
+        if (response.data) {
+          setSystemInfo(response.data);
+        }
+      } catch (error) {
+        console.error('获取系统信息失败:', error);
+      }
+    };
+    loadSystemInfo();
+  }, []);
+
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true);
     try {
@@ -62,7 +78,7 @@ const Login: React.FC = () => {
       messageApi.success('登录成功！');
       
       // 跳转到首页
-      navigate('/', { replace: true });
+      navigate('/home', { replace: true });
     } catch (error: unknown) {
       console.error('登录失败:', error);
       
@@ -115,7 +131,7 @@ const Login: React.FC = () => {
               </div>
             </div>
             <div className="login-brand-text">
-              <h1 className="login-brand-title">Admin Pro</h1>
+              <h1 className="login-brand-title">{systemInfo?.platformShortName || 'Admin Pro'}</h1>
               <div className="brand-subtitle">
                 <span className="subtitle-text">企业级管理系统</span>
                 <div className="subtitle-line"></div>
@@ -214,7 +230,16 @@ const Login: React.FC = () => {
         </form>
 
         <div className="login-footer">
-          <p className="copyright">© 2024 管理系统. All rights reserved.</p>
+          <p className="copyright">
+            {systemInfo?.copyRight || `© ${new Date().getFullYear()} 管理系统. All rights reserved.`}
+          </p>
+          {(systemInfo?.releaseVersion || systemInfo?.buildVersion) && (
+            <p className="copyright" style={{ marginTop: '6px', fontSize: '11px' }}>
+              {systemInfo.releaseVersion && <span>版本: {systemInfo.releaseVersion}</span>}
+              {systemInfo.releaseVersion && systemInfo.buildVersion && <span> | </span>}
+              {systemInfo.buildVersion && <span>构建: {systemInfo.buildVersion}</span>}
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -994,3 +994,12 @@ export interface GeneratorListResponse {
   message: string;
   success: boolean;
 }
+
+// 系统信息相关类型
+export interface SystemInfo {
+  releaseVersion?: string | null;
+  buildVersion?: string | null;
+  platformName: string;
+  platformShortName: string;
+  copyRight: string;
+}

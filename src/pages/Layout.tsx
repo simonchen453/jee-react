@@ -35,6 +35,7 @@ function MainLayout() {
     const [collapsed, setCollapsed] = useState(false);
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [openKeys, setOpenKeys] = useState<string[]>([]);
+    const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
     const [, setLoading] = useState(true);
     const navigate = useNavigate();
     const { logout, currentUser } = useAuthStore();
@@ -112,6 +113,36 @@ function MainLayout() {
         });
     };
 
+    // 根据路径查找菜单项
+    const findMenuItemByPath = (items: MenuItem[], path: string): MenuItem | null => {
+        for (const item of items) {
+            if (item.path === path) {
+                return item;
+            }
+            if (item.children) {
+                const found = findMenuItemByPath(item.children, path);
+                if (found) return found;
+            }
+        }
+        return null;
+    };
+
+    // 获取菜单项的所有父级key
+    const getParentKeys = (items: MenuItem[], targetKey: string, parentKeys: string[] = []): string[] | null => {
+        for (const item of items) {
+            if (item.key === targetKey) {
+                return parentKeys;
+            }
+            if (item.children) {
+                const found = getParentKeys(item.children, targetKey, [...parentKeys, item.key]);
+                if (found !== null) {
+                    return found;
+                }
+            }
+        }
+        return null;
+    };
+
     // 加载菜单数据
     useEffect(() => {
         const loadMenus = async () => {
@@ -125,14 +156,6 @@ function MainLayout() {
                     console.log('转换后菜单数据:', convertedMenus);
                 }
                 setMenuItems(convertedMenus);
-                
-                // 设置默认展开"工作空间"菜单
-                if (backendMenus.length > 0) {
-                    const workspaceMenu = backendMenus.find(menu => menu.title === '工作空间');
-                    if (workspaceMenu) {
-                        setOpenKeys([workspaceMenu.index]);
-                    }
-                }
             } catch (error) {
                 console.error('加载菜单失败:', error);
                 // 如果加载失败，使用默认菜单
@@ -259,20 +282,42 @@ function MainLayout() {
         setOpenKeys(keys);
     };
 
+    // 根据当前路由自动展开菜单并高亮
+    useEffect(() => {
+        if (menuItems.length === 0) return;
+
+        const currentPath = location.pathname;
+        const matchedMenuItem = findMenuItemByPath(menuItems, currentPath);
+
+        if (matchedMenuItem) {
+            setSelectedKeys([matchedMenuItem.key]);
+            const parentKeys = getParentKeys(menuItems, matchedMenuItem.key);
+            if (parentKeys && parentKeys.length > 0 && !collapsed) {
+                setOpenKeys(parentKeys);
+            }
+        } else {
+            setSelectedKeys([]);
+        }
+    }, [location.pathname, menuItems, collapsed]);
+
     // 当侧边栏折叠时，清空展开的菜单
     useEffect(() => {
         if (collapsed) {
             setOpenKeys([]);
         } else {
-            // 侧边栏展开时，重新展开工作空间菜单
+            // 侧边栏展开时，根据当前路由重新展开菜单
             if (menuItems.length > 0) {
-                const workspaceMenu = menuItems.find(menu => menu.label === '工作空间');
-                if (workspaceMenu) {
-                    setOpenKeys([workspaceMenu.key]);
+                const currentPath = location.pathname;
+                const matchedMenuItem = findMenuItemByPath(menuItems, currentPath);
+                if (matchedMenuItem) {
+                    const parentKeys = getParentKeys(menuItems, matchedMenuItem.key);
+                    if (parentKeys && parentKeys.length > 0) {
+                        setOpenKeys(parentKeys);
+                    }
                 }
             }
         }
-    }, [collapsed, menuItems]);
+    }, [collapsed, menuItems, location.pathname]);
 
     return (
         <AntLayout style={{ minHeight: '100vh' }}>
@@ -299,7 +344,7 @@ function MainLayout() {
                 <Menu
                     theme="dark"
                     mode="inline"
-                    selectedKeys={[location.pathname]}
+                    selectedKeys={selectedKeys}
                     openKeys={openKeys}
                     onClick={handleMenuClick}
                     onOpenChange={handleOpenChange}

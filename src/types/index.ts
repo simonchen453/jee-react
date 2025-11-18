@@ -923,3 +923,48 @@ export interface SysLogDetailResponse {
   success: boolean;
   errorsMap?: Record<string, string>;
 }
+
+// 审计日志管理相关类型
+export interface AuditLogSearchForm {
+  category?: string;
+  module?: string;
+  user?: string;
+  event?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+export interface AuditLogEntity {
+  id?: string;
+  category?: string;
+  module?: string;
+  event?: string;
+  ipAddress?: string;
+  status?: string;
+  logDate?: string;
+  userName?: string;
+  beforeData?: string;
+  afterData?: string;
+}
+
+export interface AuditLogListResponse {
+  data: {
+    records: AuditLogEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+export interface AuditLogDetailResponse {
+  data: AuditLogEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}

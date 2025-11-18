@@ -395,3 +395,44 @@ export const MenuVisible = {
   SHOW: 'show',
   HIDE: 'hide'
 } as const;
+
+// 用户域管理相关类型
+export interface DomainSearchForm {
+  name?: string;
+  display?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+export interface DomainEntity {
+  id?: string;
+  name: string;
+  display: string;
+}
+
+export interface DomainListResponse {
+  data: {
+    records: DomainEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+export interface DomainDetailResponse {
+  data: DomainEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+export interface DomainCreateResponse {
+  data: DomainEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}

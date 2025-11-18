@@ -682,3 +682,97 @@ export interface DictCreateResponse {
   success: boolean;
   errorsMap?: Record<string, string>;
 }
+
+// 定时任务管理相关类型
+export interface JobSearchForm {
+  condition?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+export interface JobEntity {
+  id?: string;
+  beanName: string;
+  methodName: string;
+  params?: string;
+  cronExpression: string;
+  status: string;
+  remark?: string;
+  nextValidTime?: string;
+}
+
+export interface JobListResponse {
+  data: {
+    records: JobEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+export interface JobDetailResponse {
+  data: JobEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+export interface JobCreateResponse {
+  data: JobEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+export interface JobNextTimeResponse {
+  data: string;
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+// 定时任务状态常量
+export const JobStatus = {
+  NORMAL: '1',
+  PAUSE: '0'
+} as const;
+
+// 定时任务日志相关类型
+export interface JobLogSearchForm {
+  condition?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+export interface JobLogEntity {
+  id?: string;
+  jobId: string;
+  beanName: string;
+  methodName: string;
+  params?: string;
+  status: string;
+  times?: number;
+  createTime?: string;
+  error?: string;
+}
+
+export interface JobLogListResponse {
+  data: {
+    records: JobLogEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+// 定时任务日志状态常量
+export const JobLogStatus = {
+  SUCCESS: '0',
+  FAIL: '1'
+} as const;

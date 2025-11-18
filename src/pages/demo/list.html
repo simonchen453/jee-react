@@ -1,0 +1,264 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<body>
+<div layout:fragment="content">
+    <div class="wrapper" id="app" v-cloak>
+        <div class="body_container">
+            <div class="custom_container table">
+                <!-- 面包屑导航条 -->
+                <div class="crumbs">
+                    <el-breadcrumb separator-class="el-icon-arrow-right">
+                        <el-breadcrumb-item><a onclick="EcqEE.Common.router('/home');"><i
+                                class="el-icon-menu"></i> 首页</a></el-breadcrumb-item>
+                        <el-breadcrumb-item>用户Session管理</el-breadcrumb-item>
+                    </el-breadcrumb>
+                </div>
+                <hr>
+                <!-- 查询表单 -->
+                <el-form :model="searchForm" ref="queryForm" :inline="true" label-width="68px">
+                    <el-form-item label="用户域" prop="userDomain">
+                        <el-select v-model="searchForm.userDomain" clearable="true" style="width:255px;">
+                            <template v-for="n in domains">
+                                <el-option :label="n.display" :value="n.name" :key="n.name"></el-option>
+                            </template>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="登陆名" prop="loginName">
+                        <el-input v-model="searchForm.loginName" placeholder="请输入登陆名" clearable size="small"
+                                  @keyup.enter.native="search"></el-input>
+                    </el-form-item>
+                    <el-form-item label="状态: " label-width="auto">
+                        <el-select v-model="searchForm.status" placeholder="请选择" clearable size="small">
+                            <el-option v-for="dict in sessionStatus" :key="dict.key" :label="dict.value" :value="dict.key"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="部门编号" prop="deptNo">
+                        <el-input v-model="searchForm.deptNo" placeholder="请输入部门编号" clearable size="small"
+                                  @keyup.enter.native="search"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" icon="el-icon-search" size="mini" @click="search">搜索</el-button>
+                        <el-button icon="el-icon-refresh" type="warning" size="mini" @click="resetQuery">重置</el-button>
+                    </el-form-item>
+                </el-form>
+                <!-- 分页 -->
+                <div style="width:100%">
+                    <div style="width:50%;float:right;" class="pagination">
+                        <el-pagination
+                                @size-change="changePageSize"
+                                @current-change="changePageNo"
+                                :current-page.sync="searchForm.pageNo"
+                                :page-sizes="[10, 20, 30, 50]"
+                                :page-size="searchForm.pageSize"
+                                layout="sizes, prev, pager, next, total, jumper"
+                                :total="searchForm.totalNum">
+                        </el-pagination>
+                    </div>
+                </div>
+                <!-- 列表表单 -->
+                <el-table :data="tableData" v-loading="loading" @selection-change="selectCheckbox">
+                    <el-table-column type="selection" width="50"></el-table-column>
+                    <el-table-column label="NO." width="50">
+                        <template slot-scope="scope">
+                            {{scope.$index + searchForm.pageSize*(searchForm.pageNo-1) + 1}}
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="sessionId" label="Session ID" min-width="10%" :show-overflow-tooltip="true">
+                    </el-table-column>
+                    <el-table-column prop="userDomain" label="用户域" width="100px">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.userDomain | domainFilter }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="loginName" label="登陆名" min-width="10%">
+                    </el-table-column>
+                    <el-table-column prop="deptNo" label="部门编号" min-width="10%">
+                    </el-table-column>
+                    <el-table-column prop="ipAddr" label="登陆IP" min-width="10%">
+                    </el-table-column>
+                    <el-table-column prop="loginLocation" label="登陆地址" min-width="10%" :show-overflow-tooltip="true">
+                    </el-table-column>
+                    <el-table-column prop="browser" label="浏览器" min-width="10%">
+                    </el-table-column>
+                    <el-table-column prop="os" label="操作系统" width="150px">
+                    </el-table-column>
+                    <el-table-column prop="status" label="状态" width="80px">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.status | sessionStatusFilter }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="createdDate" label="登陆时间" width="150px">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.createdDate | dateTimeFilter }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" class-name="small-padding fixed-width" width="150px">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" v-if="scope.row.status=='active'" icon="el-icon-edit" @click="handleSuspend(scope.row)">
+                                限制
+                            </el-button>
+                            <el-button size="mini" type="primary" v-if="scope.row.status=='suspend'" icon="el-icon-edit" @click="handleUnSuspend(scope.row)">
+                                解除
+                            </el-button>
+                            <el-button size="mini" type="primary" v-if="scope.row.status=='active' || scope.row.status=='suspend'" icon="el-icon-delete" @click="handleKill(scope.row)">
+                                强退
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <!-- 分页 -->
+                <div style="width:100%">
+                    <div style="width:50%;float:right;" class="pagination">
+                        <el-pagination
+                                @size-change="changePageSize"
+                                @current-change="changePageNo"
+                                :current-page.sync="searchForm.pageNo"
+                                :page-sizes="[10, 20, 30, 50]"
+                                :page-size="searchForm.pageSize"
+                                layout="sizes, prev, pager, next, total, jumper"
+                                :total="searchForm.totalNum">
+                        </el-pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/js/system/session.js}" type="text/babel"></script>
+    <script th:inline="javascript" type="text/babel">
+        let sessionStatusMap = [[${T(com.ecqee.tools.domains.enums.SessionStatus).getConfigMap()}]];
+        let vm = new Vue({
+            el: '#app',
+            data: function () {
+                let self = this;
+                return {
+                    multipleSelection: [],
+                    domains: [[${domains}]],
+                    checkAll: false,
+                    loading: false,
+                    // 用户Session表格数据
+                    tableData: [],
+                    sessionStatus: [[${T(com.ecqee.tools.domains.enums.SessionStatus).getConfigList()}]],
+                    searchForm: [[${session.sessionSearchForm}]],
+                }
+            },
+            created: function () {
+                this.loadData();
+            },
+            filters: {
+                sessionStatusFilter: function (value) {
+                    return sessionStatusMap[value];
+                }
+            },
+            methods: {
+                resetQuery(){
+                    this.searchForm = {
+                        sessionId: undefined,
+                        status: undefined,
+                        userDomain: undefined,
+                        loginName: undefined,
+                        ipAddr: undefined,
+                        deptNo: undefined,
+                    };
+                    this.search();
+                },
+                /** 查询岗位列表 */
+                loadData() {
+                    this.loading = true;
+                    this.queryData(this.searchForm).then(response => {
+                        let res = response.data;
+                        if(res.restCode == 200) {
+                            this.tableData = res.data.records;
+                            this.searchForm.totalNum = res.data.totalCount;
+                        }else{
+                            let msg = res.message;
+                            if(!msg){
+                                msg = "加载数据失败";
+                            }
+                            this.msgError(msg);
+                        }
+                        this.loading = false;
+                    });
+                },
+                search: function () {
+                    this.searchForm.pageNo = 1;
+                    this.loadData();
+                },
+                changePageSize: function (val) {
+                    this.searchForm.pageSize = val;
+                    this.search();
+                },
+                changePageNo: function (val) {
+                    this.searchForm.pageNo = val;
+                    this.loadData();
+                },
+                selectCheckbox: function (val) {
+                    this.multipleSelection = val;
+                },
+                handleSuspend(row) {
+                    this.confirm("你确定要限制（"+row.loginName+")的访问吗？").then(()=>{
+                        this.suspendSession(row.id).then(response => {
+                            let res = response.data;
+                            if(res.restCode == 200){
+                                this.loadData();
+                            }else{
+                                let msg = res.message;
+                                if(!msg){
+                                    msg = "限制Session失败";
+                                }
+                                this.msgError(msg);
+                            }
+                        });
+                    })
+
+                },
+                handleUnSuspend(row) {
+                    this.confirm("你确定要解除（"+row.loginName+")的访问吗？").then(()=>{
+                        this.unsuspendSession(row.id).then(response => {
+                            let res = response.data;
+                            if(res.restCode == 200){
+                                this.loadData();
+                            }else{
+                                let msg = res.message;
+                                if(!msg){
+                                    msg = "解除限制失败";
+                                }
+                                this.msgError(msg);
+                            }
+                        });
+                    });
+                },
+                handleKill(row) {
+                    this.confirm("你确定要强退（"+row.loginName+")吗？").then(()=>{
+                        this.killSession(row.id).then(response => {
+                            let res = response.data;
+                            if(res.restCode == 200){
+                                this.loadData();
+                            }else{
+                                let msg = res.message;
+                                if(!msg){
+                                    msg = "强退Session失败";
+                                }
+                                this.msgError(msg);
+                            }
+                        });
+                    });
+                },
+                handleSelection: function () {
+                    let length = this.multipleSelection.length;
+                    let str = '';
+                    for (let i = 0; i < length; i++) {
+                        str += this.multipleSelection[i].id + ',';
+                    }
+                    if (str.indexOf(",") != -1) {
+                        str = str.substr(0, str.length - 1);
+                    }
+                    return str;
+                },
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

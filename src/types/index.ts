@@ -776,3 +776,47 @@ export const JobLogStatus = {
   SUCCESS: '0',
   FAIL: '1'
 } as const;
+
+// Session管理相关类型
+export interface SessionSearchForm {
+  sessionId?: string;
+  userDomain?: string;
+  loginName?: string;
+  status?: string;
+  ipAddr?: string;
+  deptNo?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+export interface SessionEntity {
+  id: string;
+  sessionId: string;
+  userDomain: string;
+  loginName: string;
+  deptNo?: string;
+  ipAddr?: string;
+  loginLocation?: string;
+  browser?: string;
+  os?: string;
+  status: string;
+  createdDate?: string;
+}
+
+export interface SessionListResponse {
+  data: {
+    records: SessionEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+// Session状态常量
+export const SessionStatus = {
+  ACTIVE: 'active',
+  SUSPEND: 'suspend',
+  KILLED: 'killed'
+} as const;

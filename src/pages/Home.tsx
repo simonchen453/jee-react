@@ -7,7 +7,6 @@ import {
   WifiOutlined,
   SettingOutlined,
   MenuOutlined,
-  KeyOutlined,
   ToolOutlined,
   FileTextOutlined,
   ClockCircleOutlined,

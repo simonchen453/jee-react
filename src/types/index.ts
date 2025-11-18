@@ -584,3 +584,47 @@ export interface DomainEnvCreateResponse {
   success: boolean;
   errorsMap?: Record<string, string>;
 }
+
+// 参数配置管理相关类型
+export interface ConfigSearchForm {
+  name?: string;
+  key?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+export interface ConfigEntity {
+  id?: string;
+  name: string;
+  key: string;
+  value: string;
+  remark?: string;
+  system?: string;
+}
+
+export interface ConfigListResponse {
+  data: {
+    records: ConfigEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+export interface ConfigDetailResponse {
+  data: ConfigEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+export interface ConfigCreateResponse {
+  data: ConfigEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}

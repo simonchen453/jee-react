@@ -628,3 +628,57 @@ export interface ConfigCreateResponse {
   success: boolean;
   errorsMap?: Record<string, string>;
 }
+
+export interface DictSearchForm {
+  name?: string;
+  key?: string;
+  status?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+export interface DictEntity {
+  id?: string;
+  name: string;
+  key: string;
+  status: string;
+  remark?: string;
+  data?: DictDataEntity[];
+}
+
+export interface DictDataEntity {
+  key?: string;
+  value: string;
+  label: string;
+  order: string;
+  cssClass?: string;
+  status: string;
+  index?: number;
+}
+
+export interface DictListResponse {
+  data: {
+    records: DictEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+export interface DictDetailResponse {
+  data: DictEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+export interface DictCreateResponse {
+  data: DictEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}

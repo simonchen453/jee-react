@@ -880,3 +880,46 @@ export interface ServerInfoResponse {
   message: string;
   success: boolean;
 }
+
+// 系统日志管理相关类型
+export interface SysLogSearchForm {
+  condition?: string;
+  startTime?: string;
+  endTime?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+export interface SysLogEntity {
+  id?: string;
+  userDomain?: string;
+  userId?: string;
+  loginName?: string;
+  ip?: string;
+  browser?: string;
+  method?: string;
+  operation?: string;
+  params?: string;
+  response?: string;
+  time?: number;
+  createdDate?: string;
+}
+
+export interface SysLogListResponse {
+  data: {
+    records: SysLogEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+export interface SysLogDetailResponse {
+  data: SysLogEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}

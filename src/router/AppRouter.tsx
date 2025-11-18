@@ -21,6 +21,8 @@ const JobList = lazy(() => import('../pages/Job/JobList'));
 const JobLog = lazy(() => import('../pages/Job/JobLog'));
 const SessionList = lazy(() => import('../pages/Session/SessionList'));
 const ServerInfo = lazy(() => import('../pages/Server/ServerInfo'));
+const SysLogList = lazy(() => import('../pages/SysLog/SysLogList'));
+const SysLogView = lazy(() => import('../pages/SysLog/SysLogView'));
 const ChangePassword = lazy(() => import('../pages/ChangePassword/ChangePassword'));
 const NoPermission = lazy(() => import('../pages/NoPermission'));
 const NotFound = lazy(() => import('../pages/NotFound'));
@@ -173,6 +175,22 @@ function AppRouter() {
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
                                 <ServerInfo />
+                            </Suspense>
+                        } 
+                    />
+                    <Route
+                        path="admin/syslog"
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <SysLogList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route
+                        path="admin/syslog/view" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <SysLogView />
                             </Suspense>
                         } 
                     />

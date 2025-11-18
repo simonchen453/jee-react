@@ -5,28 +5,19 @@ import type {
   ApiResponse
 } from '../types';
 
-export const getSessionListApi = async (searchForm: SessionSearchForm): Promise<SessionListResponse> => {
-  const response = await request.post<ApiResponse<SessionListResponse['data']>>('/admin/session/list', searchForm);
-  return {
-    data: response.data,
-    restCode: response.restCode,
-    message: response.message,
-    success: response.success
-  };
+export const getSessionListApi = (searchForm: SessionSearchForm): Promise<SessionListResponse> => {
+  return request.post('/admin/session/list', searchForm);
 };
 
-export const suspendSessionApi = async (id: string): Promise<ApiResponse> => {
-  const response = await request.patch<ApiResponse>(`/admin/session/suspend/${id}`);
-  return response;
+export const suspendSessionApi = (id: string): Promise<ApiResponse> => {
+  return request.patch(`/admin/session/suspend/${id}`);
 };
 
-export const unsuspendSessionApi = async (id: string): Promise<ApiResponse> => {
-  const response = await request.patch<ApiResponse>(`/admin/session/unsuspend/${id}`);
-  return response;
+export const unsuspendSessionApi = (id: string): Promise<ApiResponse> => {
+  return request.patch(`/admin/session/unsuspend/${id}`);
 };
 
-export const killSessionApi = async (id: string): Promise<ApiResponse> => {
-  const response = await request.patch<ApiResponse>(`/admin/session/kill/${id}`);
-  return response;
+export const killSessionApi = (id: string): Promise<ApiResponse> => {
+  return request.patch(`/admin/session/kill/${id}`);
 };
 

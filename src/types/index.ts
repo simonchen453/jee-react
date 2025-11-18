@@ -204,10 +204,60 @@ export interface UserStatusChangeResponse {
 
 // 部门类型
 export interface DeptEntity {
+  id?: string;
+  no?: string;
+  name?: string;
+  parentId?: string;
+  orderNum?: number;
+  linkman?: string;
+  phone?: string;
+  email?: string;
+  status?: string;
+  customLogin?: string;
+  logoPath?: string;
+  createdDate?: string;
+  children?: DeptEntity[];
+}
+
+export interface DeptSearchForm {
+  name?: string;
+  status?: string;
+}
+
+export interface DeptListResponse {
+  data: DeptEntity[];
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+export interface DeptDetailResponse {
+  data: DeptEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+export interface DeptCreateResponse {
+  data: DeptEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+export interface DeptTreeSelectNode {
   id: string;
-  no: string;
-  name: string;
-  parentId: string;
+  label: string;
+  children?: DeptTreeSelectNode[];
+}
+
+export interface DeptTreeSelectResponse {
+  data: DeptTreeSelectNode[];
+  restCode: string;
+  message: string;
+  success: boolean;
 }
 
 // 角色类型
@@ -396,6 +446,12 @@ export const MenuVisible = {
   HIDE: 'hide'
 } as const;
 
+// 部门状态常量
+export const DeptStatus = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive'
+} as const;
+
 // 用户域管理相关类型
 export interface DomainSearchForm {
   name?: string;
@@ -431,6 +487,49 @@ export interface DomainDetailResponse {
 
 export interface DomainCreateResponse {
   data: DomainEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+// 用户域环境配置管理相关类型
+export interface DomainEnvSearchForm {
+  userDomain?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+export interface DomainEnvEntity {
+  id?: string;
+  userDomain: string;
+  commonRole: string;
+  homePageUrl: string;
+  loginUrl: string;
+  description?: string;
+}
+
+export interface DomainEnvListResponse {
+  data: {
+    records: DomainEnvEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+export interface DomainEnvDetailResponse {
+  data: DomainEnvEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+export interface DomainEnvCreateResponse {
+  data: DomainEnvEntity;
   restCode: string;
   message: string;
   success: boolean;

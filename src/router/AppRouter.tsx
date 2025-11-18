@@ -12,6 +12,8 @@ const UserList = lazy(() => import('../pages/User/UserList'));
 const RoleList = lazy(() => import('../pages/Role/RoleList'));
 const MenuList = lazy(() => import('../pages/Menu/MenuList'));
 const DomainList = lazy(() => import('../pages/Domain/DomainList'));
+const DomainEnvList = lazy(() => import('../pages/DomainEnv'));
+const DeptList = lazy(() => import('../pages/Dept/DeptList'));
 const ChangePassword = lazy(() => import('../pages/ChangePassword/ChangePassword'));
 const NoPermission = lazy(() => import('../pages/NoPermission'));
 const NotFound = lazy(() => import('../pages/NotFound'));
@@ -92,6 +94,22 @@ function AppRouter() {
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
                                 <DomainList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route
+                        path="admin/userDomainEnv" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <DomainEnvList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route
+                        path="admin/dept" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <DeptList />
                             </Suspense>
                         } 
                     />

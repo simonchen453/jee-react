@@ -30,8 +30,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   getMenuTreeListApi,
   getMenuDetailApi,
-  createMenuApi,
-  updateMenuApi,
   deleteMenuApi,
   getMenuTreeSelectApi
 } from '../../api/menu';
@@ -241,15 +239,6 @@ const MenuList: React.FC = () => {
     return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>;
   };
 
-  const getTypeText = (type: string) => {
-    const typeMap: Record<string, string> = {
-      [MenuType.DIRECTORY]: '目录',
-      [MenuType.MENU]: '菜单',
-      [MenuType.BUTTON]: '按钮'
-    };
-    return typeMap[type] || type;
-  };
-
   const formatDateTime = (dateStr?: string) => {
     if (!dateStr) return '-';
     try {
@@ -267,13 +256,19 @@ const MenuList: React.FC = () => {
     }
   };
 
-  const handleExpandAll = () => {
+  const isAllExpanded = () => {
     const allKeys = getAllRowKeys(menuList);
-    setExpandedRowKeys(allKeys);
+    return allKeys.length > 0 && allKeys.length === expandedRowKeys.length && 
+           allKeys.every(key => expandedRowKeys.includes(key));
   };
 
-  const handleCollapseAll = () => {
-    setExpandedRowKeys([]);
+  const handleToggleExpand = () => {
+    if (isAllExpanded()) {
+      setExpandedRowKeys([]);
+    } else {
+      const allKeys = getAllRowKeys(menuList);
+      setExpandedRowKeys(allKeys);
+    }
   };
 
   const columns: ColumnsType<MenuEntity> = [
@@ -443,11 +438,11 @@ const MenuList: React.FC = () => {
             <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
               新增
             </Button>
-            <Button icon={<ExpandOutlined />} onClick={handleExpandAll}>
-              展开全部
-            </Button>
-            <Button icon={<CompressOutlined />} onClick={handleCollapseAll}>
-              收起全部
+            <Button 
+              icon={isAllExpanded() ? <CompressOutlined /> : <ExpandOutlined />} 
+              onClick={handleToggleExpand}
+            >
+              {isAllExpanded() ? '收起全部' : '展开全部'}
             </Button>
           </Space>
         </div>

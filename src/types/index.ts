@@ -269,10 +269,59 @@ export interface RoleEntity {
 
 // 岗位类型
 export interface PostEntity {
-  id: string;
+  id?: string;
   code: string;
   name: string;
+  sort?: number;
+  status: string;
+  remark?: string;
+  createdDate?: string;
 }
+
+// 岗位搜索表单
+export interface PostSearchForm {
+  code?: string;
+  name?: string;
+  status?: string;
+  pageNo?: number;
+  pageSize?: number;
+  totalNum?: number;
+}
+
+// 岗位列表响应
+export interface PostListResponse {
+  data: {
+    records: PostEntity[];
+    totalCount: number;
+  };
+  restCode: string;
+  message: string;
+  success: boolean;
+}
+
+// 岗位详情响应
+export interface PostDetailResponse {
+  data: PostEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+// 岗位创建/更新响应
+export interface PostCreateResponse {
+  data: PostEntity;
+  restCode: string;
+  message: string;
+  success: boolean;
+  errorsMap?: Record<string, string>;
+}
+
+// 岗位状态常量
+export const PostStatus = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive'
+} as const;
 
 // 用户状态常量
 export const UserStatus = {

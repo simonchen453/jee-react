@@ -14,6 +14,7 @@ const MenuList = lazy(() => import('../pages/Menu/MenuList'));
 const DomainList = lazy(() => import('../pages/Domain/DomainList'));
 const DomainEnvList = lazy(() => import('../pages/DomainEnv'));
 const DeptList = lazy(() => import('../pages/Dept/DeptList'));
+const PostList = lazy(() => import('../pages/Post/PostList'));
 const ChangePassword = lazy(() => import('../pages/ChangePassword/ChangePassword'));
 const NoPermission = lazy(() => import('../pages/NoPermission'));
 const NotFound = lazy(() => import('../pages/NotFound'));
@@ -110,6 +111,14 @@ function AppRouter() {
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
                                 <DeptList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route
+                        path="admin/post" 
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <PostList />
                             </Suspense>
                         } 
                     />

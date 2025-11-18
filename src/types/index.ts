@@ -820,3 +820,63 @@ export const SessionStatus = {
   SUSPEND: 'suspend',
   KILLED: 'killed'
 } as const;
+
+// 服务器信息相关类型
+export interface ServerCpuInfo {
+  cpuNum: number;
+  used: number;
+  sys: number;
+  free: number;
+}
+
+export interface ServerMemInfo {
+  total: number;
+  used: number;
+  free: number;
+  usage: number;
+}
+
+export interface ServerJvmInfo {
+  total: number;
+  used: number;
+  free: number;
+  usage: number;
+  name: string;
+  version: string;
+  startTime: string;
+  runTime: string;
+  home: string;
+}
+
+export interface ServerSysInfo {
+  computerName: string;
+  computerIp: string;
+  osName: string;
+  osArch: string;
+  userDir: string;
+}
+
+export interface ServerSysFileInfo {
+  dirName: string;
+  sysTypeName: string;
+  typeName: string;
+  total: string;
+  free: string;
+  used: string;
+  usage: number;
+}
+
+export interface ServerInfo {
+  cpu?: ServerCpuInfo;
+  mem?: ServerMemInfo;
+  jvm?: ServerJvmInfo;
+  sys?: ServerSysInfo;
+  sysFiles?: ServerSysFileInfo[];
+}
+
+export interface ServerInfoResponse {
+  data: ServerInfo;
+  restCode: string;
+  message: string;
+  success: boolean;
+}

@@ -25,6 +25,7 @@ const SysLogList = lazy(() => import('../pages/SysLog/SysLogList'));
 const SysLogView = lazy(() => import('../pages/SysLog/SysLogView'));
 const AuditLogList = lazy(() => import('../pages/AuditLog/AuditLogList'));
 const GeneratorList = lazy(() => import('../pages/Generator'));
+const Swagger = lazy(() => import('../pages/Swagger'));
 const ChangePassword = lazy(() => import('../pages/ChangePassword/ChangePassword'));
 const NoPermission = lazy(() => import('../pages/NoPermission'));
 const NotFound = lazy(() => import('../pages/NotFound'));
@@ -209,6 +210,14 @@ function AppRouter() {
                         element={
                             <Suspense fallback={<LoadingSpinner />}>
                                 <GeneratorList />
+                            </Suspense>
+                        } 
+                    />
+                    <Route
+                        path="admin/swagger"
+                        element={
+                            <Suspense fallback={<LoadingSpinner />}>
+                                <Swagger />
                             </Suspense>
                         } 
                     />
